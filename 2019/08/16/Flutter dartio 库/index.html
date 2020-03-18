@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="大道至简">
+  <meta name="author" content="刘圣文">
+  <meta name="keywords" content="Android;Flutter">
+  <title>Flutter dartio 库 - 大道至简</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大道至简</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">关于</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/links/">友链</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  星期五, 八月 16日 2019, 5:48 下午
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    1.4k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta">
+                      <i class="far fa-clock"></i>
+                      5 分钟
+                  </span>
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <div class="markdown-body">
+              <h1 id="Flutter-dart-io-库"><a href="#Flutter-dart-io-库" class="headerlink" title="Flutter dart:io 库"></a>Flutter dart:io 库</h1><h3 id="你将得到什么？"><a href="#你将得到什么？" class="headerlink" title="你将得到什么？"></a>你将得到什么？</h3><p>1、dart:io 是什么？</p>
+<p>2、dart:io 使用</p>
+<p>3、dart:io 组成部分</p>
+<p>4、dart:io 总结</p>
+<h2 id="dart-io-是什么"><a href="#dart-io-是什么" class="headerlink" title="dart:io 是什么"></a>dart:io 是什么</h2><p>dart:io 支持对非web应用程序的文件、套接字、HTTP 和其他 I/O 操作。换句话说，不支持基于浏览器的应用程序。只有服务器、命令行脚本和Flutter移动应用程序，才能导入和使用 dart:io 库。</p>
+<p>基于 dart:io 我们可以处理文件、目录、套接字、进程、HTTP 服务器和客户端。使用 Futures 或 Streams 来处理异步的输入和输出相关操作。异步都在 dart:async 库中定义。</p>
+<h2 id="dart-io-使用"><a href="#dart-io-使用" class="headerlink" title="dart:io 使用"></a>dart:io 使用</h2><p>在使用这个库时，将其导入，代码如下：</p>
+<pre><code class="dart">import &#39;dart:io&#39;;</code></pre>
+<h3 id="dart-io-操作文件、目录和连接"><a href="#dart-io-操作文件、目录和连接" class="headerlink" title="dart:io 操作文件、目录和连接"></a>dart:io 操作文件、目录和连接</h3><p>您可以通过这些类型的对象操作文件系统。例如，您可以重命名一个文件或目录:</p>
+<pre><code class="dart">File myFile = new File(&#39;我的文件.txt&#39;);
+myFile.rename(&#39;新的文件名.txt&#39;).then((_) =&gt; print(&#39;文件被重命名&#39;));</code></pre>
+<p>文件、目录和链接类提供的许多方法，他们都是异步运行的，最后返回一个Future。</p>
+<h3 id="FileSystemEntity"><a href="#FileSystemEntity" class="headerlink" title="FileSystemEntity"></a>FileSystemEntity</h3><p>文件、目录和链接都是FileSystemEntity的扩展。除了作为这些类的超类之外，FileSystemEntity还有许多用于处理路径的静态方法。如“isDirectory”、“isFile”和“exists”等等，来获取文件相关的信息。</p>
+<pre><code class="dart">FileSystemEntity.isDirectory(myPath).then((isDir) {
+  if (isDir) {
+    print(&#39;$myPath 是目录&#39;);
+  } else {
+    print(&#39;$myPath 不是目录&#39;);
+  }
+});</code></pre>
+<h2 id="HttpServer-和-HttpClient"><a href="#HttpServer-和-HttpClient" class="headerlink" title="HttpServer 和 HttpClient"></a>HttpServer 和 HttpClient</h2><p>HttpServer 提供实现 HTTP 服务端的基本功能。</p>
+<p>HttpServer 提供了 HttpRequest 对象的流。每个 HttpRequest 都对应一个 HttpResponse 对象。服务端通过写入 HttpResponse 对象来响应请求。下面代码示例展示如何将HttpServer 绑定到端口 80 上的 IPv6 因特网地址，以及如何侦听请求。</p>
+<pre><code class="dart">import &#39;dart:io&#39;;
+
+main() {
+  HttpServer.bind(InternetAddress.anyIPv6, 80)
+      .then((server) {
+        server.listen((HttpRequest request) {
+          request.response.write(&#39;Hello, world!&#39;);
+          request.response.close();
+        });
+      });
+}</code></pre>
+<p>对于一些更高级的构建模块，建议尝试一下用于 Dar 的 Web 服务器中间件 <a href="https://pub.dev/packages/shelf">shelf 包</a> ，它包含一组高级类，以及这个库中的 HttpServer 类，更容易实现 HTTP 服务器业务。</p>
+<p>HttpClient 提供客户端的基本功能。</p>
+<pre><code class="dart">HttpClient client = new HttpClient();
+client.getUrl(Uri.parse(&quot;http://www.example.com/&quot;))
+    .then((HttpClientRequest request) {
+     // 可选地设置标题…
+     // 可选地写入请求对象…
+     // 然后调用关闭
+      return request.close();
+    })
+    .then((HttpClientResponse response) {
+      // 处理响应逻辑
+      ...
+    });</code></pre>
+<h2 id="Process"><a href="#Process" class="headerlink" title="Process"></a>Process</h2><p>Process 类提供了运行进程的方法。</p>
+<p>例如，下面的代码生成一个进程，递归列出 web 下的文件列表</p>
+<pre><code class="dart">Process.start(&#39;ls&#39;, [&#39;-R&#39;, &#39;web&#39;]).then((process) {
+  stdout.addStream(process.stdout);
+  stderr.addStream(process.stderr);
+  process.exitCode.then(print);
+});</code></pre>
+<p>调用 start() 方法时返回一个 Future 对象。在运行时，我们是可以操作当前的process，达到想要的目的。另外需要注意在使用 start() 时，必须读取 stdout 和 stderr 流的所有数据，否则系统资源不会被<strong>释放</strong>。</p>
+<pre><code class="dart">// 列出当前目录下的所有文件
+Process.run(&#39;ls&#39;, [&#39;-l&#39;]).then((ProcessResult results) {
+  print(results.stdout);
+});</code></pre>
+<p>调用run方法时，它将以 ProcessResult 对象结束当前进程。run方法不返回进程对象，这的话，我们的代码就不能与当前的process进行交互。</p>
+<h2 id="WebSocket"><a href="#WebSocket" class="headerlink" title="WebSocket"></a>WebSocket</h2><p>WebSocket 提供了 web 套接字协议，它支持客户端与服务端的应用程序之间进行全双工通信。web 套接字服务端使用普通 HTTP 来接受套接字连接。初始握手是一个 HTTP 请求，然后升级为 web 套接字连接。服务端使用 WebSocketTransformer 升级请求，并侦听返回的 web 套接字上的数据。例如，这里有一个服务端监听 WebSocket 上的 “ws” 数据:</p>
+<pre><code class="dart">runZoned(() async {
+  var server = await HttpServer.bind(&#39;127.0.0.1&#39;, 4040);
+  server.listen((HttpRequest req) async {
+    if (req.uri.path == &#39;/ws&#39;) {
+      var socket = await WebSocketTransformer.upgrade(req);
+      socket.listen(handleMsg);
+    }
+  });
+}, onError: (e) =&gt; print(&quot;An error occurred.&quot;));</code></pre>
+<p>客户端连接示例</p>
+<pre><code>var socket = await WebSocket.connect(&#39;ws://127.0.0.1:4040/ws&#39;);
+socket.add(&#39;Hello, World!&#39;);</code></pre><p>调用 connect 方法连接到服务端的套接字服务，调用 add 方法往套接字内写入数据。</p>
+<h2 id="ServerSocket-和-Socket"><a href="#ServerSocket-和-Socket" class="headerlink" title="ServerSocket 和 Socket"></a>ServerSocket 和 Socket</h2><p>客户端与服务端基于TCP协议进行通信的。服务端用 ServerSocket ，客户端用 Socket 。服务端的 ServerSocket 调用 bind 创建套接字，然后再监听访问进来的套接字请求。服务端示例：</p>
+<pre><code class="dart">ServerSocket.bind(&#39;127.0.0.1&#39;, 4041)
+  .then((serverSocket) {
+    serverSocket.listen((socket) {
+      socket.transform(utf8.decoder).listen(print);
+    });
+  });</code></pre>
+<p>客户端用 connect 方法建立套接字连接，也会返回一个Future。我们可以调用 <code>write()</code>, <code>writeln()</code>,或者 <code>writeAll()</code> 等方法通过套接字发送消息出去。客户端示例：</p>
+<pre><code>Socket.connect(&#39;127.0.0.1&#39;, 4041).then((socket) {
+  socket.write(&#39;Hello, World!&#39;);
+});</code></pre><p>除了 Socket 和 ServerSocket 之外，RawSocket 和 RawServerSocket 也可用于对异步套接字IO的低级访问。</p>
+<p>RawSocket 是 TCP 套接字的非缓冲接口。它以与底层操作系统相同的块传输数据流。它不同与<a href="http://man7.org/linux/man-pages/man7/raw.7.html">POSIX</a> 原始套接字，感兴趣可以异步这里了解。</p>
+<h2 id="标准的输出、错误、输入流"><a href="#标准的输出、错误、输入流" class="headerlink" title="标准的输出、错误、输入流"></a>标准的输出、错误、输入流</h2><p>dart:io 库提供了标准的输出、错误和输入流，分别名为 <code>stdout</code>、<code>stderr</code>和<code>stdin</code>。</p>
+<p>stdout 和 stderr 都是从 <a href="https://api.flutter.dev/flutter/dart-io/IOSink-class.html">IOSink</a>s 继承属性和方法。</p>
+<p>stdout 写入字符串：</p>
+<pre><code class="dart">stdout.writeln (“Hello, World !”);</code></pre>
+<p>stderr 写入对象列表:</p>
+<pre><code class="dart">stderr.writeAll([ &#39;That &#39;, &#39;is &#39;, &#39;an &#39;, &#39;error.&#39;, &#39;\n&#39;]);</code></pre>
+<p>stdin 是从 <a href="https://api.flutter.dev/flutter/dart-async/Stream-class.html">Stream 类</a> 继承属性和方法。</p>
+<p>示例命令行同步读取文本：</p>
+<pre><code class="dart">String inputText = stdin.readLineSync();</code></pre>
+<p>一直监听等待用户输入信息。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>1、牵涉到异步操作的地方，都会返回Future对象。</p>
+<p>2、简单介绍了dart:io，具体在使用时，应详细参考官方每节内容。</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Flutter/">Flutter</a>
+                    
+                  </span>
+                
+              </p>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Flutter dartio 库&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

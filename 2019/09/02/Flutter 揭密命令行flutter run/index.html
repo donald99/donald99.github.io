@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="大道至简">
+  <meta name="author" content="刘圣文">
+  <meta name="keywords" content="Android;Flutter">
+  <title>Flutter 揭密命令行 flutter run - 大道至简</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大道至简</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">关于</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/links/">友链</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  星期一, 九月 2日 2019, 5:15 下午
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    5.3k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta">
+                      <i class="far fa-clock"></i>
+                      27 分钟
+                  </span>
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <div class="markdown-body">
+              <p>你将得到什么？</p>
+<p>1、flutter run 命令</p>
+<p>2、针对Android平台run流程做了什么事情？</p>
+<p>赵本山：走两步，沒事走两步。在开发过程中，作为一名称职的开发者，写完代码总是要 run 一下的。知道了通过运行 <code>flutter run</code> 来启动应用，那期间都做了什么事情，这个知道吗？今天我们一起跟一跟这一块的代码~</p>
+<h2 id="flutter-run-命令"><a href="#flutter-run-命令" class="headerlink" title="flutter run 命令"></a>flutter run 命令</h2><p>在 Terminal 执行 flutter run 命令，根据环境变量我们可以知道，flutter 命令，指 ./flutter/bin/flutter 这个shell程序或flutter.bat，这里有跨平台考虑。</p>
+<pre><code class="shell">......
+FLUTTER_TOOLS_DIR=&quot;$FLUTTER_ROOT/packages/flutter_tools&quot;
+......
+SNAPSHOT_PATH=&quot;$FLUTTER_ROOT/bin/cache/flutter_tools.snapshot&quot;
+......
+DART_SDK_PATH=&quot;$FLUTTER_ROOT/bin/cache/dart-sdk&quot;
+DART=&quot;$DART_SDK_PATH/bin/dart&quot;
+......
+
+脚本最后执行了Dart命令
+&quot;$DART&quot; --packages=&quot;$FLUTTER_TOOLS_DIR/.packages&quot; $FLUTTER_TOOL_ARGS &quot;$SNAPSHOT_PATH&quot; &quot;$@&quot;</code></pre>
+<p>这里我们可以发现，flutter run 命令，执行的就是 dart flutter_tools.snapshot run 。移步到 flutter/packages/flutter_tools/ 项目目录下 flutter_tools.dart</p>
+<h2 id="flutter-tools"><a href="#flutter-tools" class="headerlink" title="flutter_tools"></a>flutter_tools</h2><p>先看一下这个文件的入口函数main代码，如下：</p>
+<pre><code class="dart">import &#39;package:flutter_tools/executable.dart&#39; as executable;
+void main(List&lt;String&gt; args) {
+  executable.main(args);
+}</code></pre>
+<h3 id="main"><a href="#main" class="headerlink" title="main"></a>main</h3><p>package:flutter_tools/executable.dart</p>
+<pre><code class="dart">/// 命令的进入点
+/// flutter命令行工具中调用这个函数.
+Future&lt;void&gt; main(List&lt;String&gt; args) async {
+  final bool verbose = args.contains(&#39;-v&#39;) || args.contains(&#39;--verbose&#39;);
+
+  final bool doctor = (args.isNotEmpty &amp;&amp; args.first == &#39;doctor&#39;) ||
+      (args.length == 2 &amp;&amp; verbose &amp;&amp; args.last == &#39;doctor&#39;);
+  final bool help = args.contains(&#39;-h&#39;) || args.contains(&#39;--help&#39;) ||
+      (args.isNotEmpty &amp;&amp; args.first == &#39;help&#39;) || (args.length == 1 &amp;&amp; verbose);
+  final bool muteCommandLogging = help || doctor;
+  final bool verboseHelp = help &amp;&amp; verbose;
+
+  await runner.run(args, &lt;FlutterCommand&gt;[
+    AnalyzeCommand(verboseHelp: verboseHelp),
+    AssembleCommand(),
+    AttachCommand(verboseHelp: verboseHelp),
+    BuildCommand(verboseHelp: verboseHelp),
+    ChannelCommand(verboseHelp: verboseHelp),
+    CleanCommand(),
+    ConfigCommand(verboseHelp: verboseHelp),
+    CreateCommand(),
+    DaemonCommand(hidden: !verboseHelp),
+    DevicesCommand(),
+    DoctorCommand(verbose: verbose),
+    DriveCommand(),
+    EmulatorsCommand(),
+    FormatCommand(),
+    GenerateCommand(),
+    IdeConfigCommand(hidden: !verboseHelp),
+    InjectPluginsCommand(hidden: !verboseHelp),
+    InstallCommand(),
+    LogsCommand(),
+    MakeHostAppEditableCommand(),
+    PackagesCommand(),
+    PrecacheCommand(),
+    RunCommand(verboseHelp: verboseHelp),
+    ScreenshotCommand(),
+    ShellCompletionCommand(),
+    TestCommand(verboseHelp: verboseHelp),
+    TrainingCommand(),
+    UnpackCommand(),
+    UpdatePackagesCommand(hidden: !verboseHelp),
+    UpgradeCommand(),
+    VersionCommand(),
+  ], verbose: verbose,
+     muteCommandLogging: muteCommandLogging,
+     verboseHelp: verboseHelp,
+     overrides: &lt;Type, Generator&gt;{
+       CodeGenerator: () =&gt; const BuildRunner(),
+       WebCompilationProxy: () =&gt; BuildRunnerWebCompilationProxy(),
+       WebRunnerFactory: () =&gt; DwdsWebRunnerFactory(), // 因为它依赖于dwd,所以内部不支持web运行。
+     });
+}</code></pre>
+<p>代码里面，可以看到有各种各样的命令，见名知意，在传进来的参数选择执行不同的命令。这里我们重点关注 run 有关RunCommand。</p>
+<p>package:flutter_tools/runner.dart</p>
+<pre><code class="dart">///  根据指定的[commands]列表，运行Flutter工具。
+Future&lt;int&gt; run(
+  List&lt;String&gt; args,
+  List&lt;FlutterCommand&gt; commands, {
+  Map&lt;Type, Generator&gt; overrides,
+}) {
+    ......省略部分代码......
+
+  final FlutterCommandRunner runner = FlutterCommandRunner(verboseHelp: verboseHelp);
+  commands.forEach(runner.addCommand);
+
+  return runInContext&lt;int&gt;(() async {
+
+    ...省略部分代码...
+
+    Object firstError;
+    StackTrace firstStackTrace;
+    return await runZoned&lt;Future&lt;int&gt;&gt;(() async {
+      try {
+        await runner.run(args);
+        return await _exit(0);
+      } catch (error, stackTrace) {
+
+      }
+    }, onError: (Object error, StackTrace stackTrace) async {
+
+    });
+  }, overrides: overrides);
+}</code></pre>
+<h3 id="CommandRunner-runCommand"><a href="#CommandRunner-runCommand" class="headerlink" title="CommandRunner runCommand"></a>CommandRunner runCommand</h3><p>找到FlutterCommandRunner类的文件 flutter_tools\lib\src\runner\flutter_command_runner.dart</p>
+<pre><code class="dart">
+class FlutterCommandRunner extends CommandRunner&lt;void&gt; {
+
+    await context.run&lt;void&gt;(
+      overrides: contextOverrides.map&lt;Type, Generator&gt;((Type type, dynamic value) {
+        return MapEntry&lt;Type, Generator&gt;(type, () =&gt; value);
+      }),
+      body: () async {
+        .........省略部分代码........
+        await super.runCommand(topLevelResults);
+      },
+    );
+  }</code></pre>
+<p>CommandRunner这是命令行调用的类，泛型 T 参数就是代表了 [Command.run] 和 [CommandRunner.run] 返回的类型。如果没有返回值可以忽略 T 。</p>
+<pre><code class="dart">class CommandRunner&lt;T&gt; {
+  .........省略部分代码........
+  /// 运行[topLevelResults]指定的命令。
+  /// 这在理论来讲是受保护的方法。可能被覆盖或从子类调用，但不应该在外部调用。
+  /// 重写它来处理全局标志或将整个命令封装在块中是很有用的。例如，您可以在这里处理“—verbose”标志，便于在运行命令前启用详细日志记录。
+  /// 这个返回是[Command.run]的结果。
+  Future&lt;T&gt; runCommand(ArgResults topLevelResults) async {
+    var argResults = topLevelResults;
+    var commands = _commands;
+    Command command;
+    var commandString = executableName;
+
+    while (commands.isNotEmpty) {
+      .........省略部分代码........
+      // 要执行的命令
+      argResults = argResults.command;
+      command = commands[argResults.name];// 在commands里面取出run对应的RunCommand对象实例
+      command._globalResults = topLevelResults;
+      command._argResults = argResults;
+      commands = command._subcommands;
+      commandString += &quot; ${argResults.name}&quot;;
+      .........省略部分代码........
+    }
+
+    .........省略部分代码........
+
+    return (await command.run()) as T; //执行RunCommand.run()
+  }</code></pre>
+<p>辗转到了这里 \flutter\packages\flutter_tools\lib\src\commands\run.dart ，run 命令就是执行的RunCommand内 HotRunner对象的方法。</p>
+<pre><code class="dart">class RunCommand extends RunCommandBase {
+  @override
+  final String name = &#39;run&#39;;
+  List&lt;Device&gt; devices;
+ .........省略部分代码........
+
+ bool shouldUseHotMode() {
+    final bool hotArg = argResults[&#39;hot&#39;] ?? false;
+    final bool shouldUseHotMode = hotArg &amp;&amp; !traceStartup;
+    return getBuildInfo().isDebug &amp;&amp; shouldUseHotMode;
+  }
+
+  @override
+  Future&lt;FlutterCommandResult&gt; runCommand() async {
+    Cache.releaseLockEarly();
+    // debug 模式下会默认开启热加载模式，如果不用热加载模式，可以使用--no-hot参数关闭它。
+    final bool hotMode = shouldUseHotMode();
+    .........省略部分代码........
+
+    final List&lt;FlutterDevice&gt; flutterDevices = &lt;FlutterDevice&gt;[];//
+    final FlutterProject flutterProject = FlutterProject.current();
+    for (Device device in devices) { // 遍历出来所有支持的Flutter设备
+      final FlutterDevice flutterDevice = await FlutterDevice.create(
+        device,
+        flutterProject: flutterProject,
+        trackWidgetCreation: argResults[&#39;track-widget-creation&#39;],
+        fileSystemRoots: argResults[&#39;filesystem-root&#39;],
+        fileSystemScheme: argResults[&#39;filesystem-scheme&#39;],
+        viewFilter: argResults[&#39;isolate-filter&#39;],
+        experimentalFlags: expFlags,
+        target: argResults[&#39;target&#39;],
+        buildMode: getBuildMode(),
+      );
+      flutterDevices.add(flutterDevice);
+    }
+
+    ResidentRunner runner;
+    final String applicationBinaryPath = argResults[&#39;use-application-binary&#39;];
+    if (hotMode &amp;&amp; !webMode) {// 这里开始构建热加载模式的HotRunner啦
+      runner = HotRunner(
+        flutterDevices,
+        target: targetFile,
+        debuggingOptions: _createDebuggingOptions(),
+        benchmarkMode: argResults[&#39;benchmark&#39;],
+        applicationBinary: applicationBinaryPath == null
+            ? null
+            : fs.file(applicationBinaryPath),
+        projectRootPath: argResults[&#39;project-root&#39;],
+        packagesFilePath: globalResults[&#39;packages&#39;],
+        dillOutputPath: argResults[&#39;output-dill&#39;],
+        stayResident: stayResident,
+        ipv6: ipv6,
+      );
+    } else if (webMode) { //web 模式下的runner 工厂构建 
+      .........省略部分代码........
+
+    } else {
+      .........省略部分代码........
+    }
+
+    // 以热加载模式执行run方法
+    final int result = await runner.run(
+      appStartedCompleter: appStartedTimeRecorder,
+      route: route,
+    );
+
+      //返回执行的结果
+    return FlutterCommandResult(
+      ExitStatus.success,
+      timingLabelParts: &lt;String&gt;[
+        hotMode ? &#39;hot&#39; : &#39;cold&#39;,
+        getModeName(getBuildMode()),
+        devices.length == 1
+            ? getNameForTargetPlatform(await devices[0].targetPlatform)
+            : &#39;multiple&#39;,
+        devices.length == 1 &amp;&amp; await devices[0].isLocalEmulator ? &#39;emulator&#39; : null,
+      ],
+      endTimeOverride: appStartedTime,
+    );
+  }
+}</code></pre>
+<h3 id="HotRunner-run"><a href="#HotRunner-run" class="headerlink" title="HotRunner run"></a>HotRunner run</h3><p>以热加载模式执行run方法 , \flutter\packages\flutter_tools\lib\src\run_hot.dart</p>
+<pre><code class="dart">class HotRunner extends ResidentRunner {
+.........省略部分代码........
+@override
+  Future&lt;int&gt; run({
+    Completer&lt;DebugConnectionInfo&gt; connectionInfoCompleter,
+    Completer&lt;void&gt; appStartedCompleter,
+    String route,
+  }) async {
+    .........省略部分代码........
+
+    firstBuildTime = DateTime.now();
+
+    for (FlutterDevice device in flutterDevices) {
+        // 运行热加载
+      final int result = await device.runHot(
+        hotRunner: this,
+        route: route,
+      );
+      if (result != 0) {
+        return result;
+      }
+    }
+// 在开发者侧发起连接请求，建立Socket远程连接
+    return attach(
+      connectionInfoCompleter: connectionInfoCompleter,
+      appStartedCompleter: appStartedCompleter,
+    );
+  }</code></pre>
+<h3 id="sendRequest"><a href="#sendRequest" class="headerlink" title="sendRequest"></a>sendRequest</h3><p>发起请求Request连接设备</p>
+<pre><code class="dart">/// 发送JSON-RPC 2请求来调用给定的[method]。
+/// 传递的方法参数必须是[Iterable](按位置传递参数)或[Map](按名称传递参数)。不管哪种方式，都必须是JSON-serializable。
+///如果请求成功，会返回经过解码的JSON-serializable对象的响应结果。如果失败，它将抛出一个描述失败的异常[RpcException]。
+/// 如果在请求运行时或调用此方法时，客户机被关闭了，就会抛出错误[StateError]。
+
+Future sendRequest(String method, [parameters]) {
+    var id = _id++;
+    _send(method, parameters, id);
+
+    var completer = new Completer.sync();
+    _pendingRequests[id] = new _Request(method, completer, new Chain.current());
+    return completer.future;
+  }</code></pre>
+<h3 id="runHot"><a href="#runHot" class="headerlink" title="runHot"></a>runHot</h3><p>运行热加载</p>
+<pre><code class="dart">Future&lt;int&gt; runHot({HotRunner hotRunner,String route,}) async {
+    final bool prebuiltMode = hotRunner.applicationBinary != null;  // 判断是否是预编译模式
+    final String modeName = hotRunner.debuggingOptions.buildInfo.friendlyModeName;// debug模式
+    printStatus(&#39;Launching ${getDisplayPath(hotRunner.mainPath)} on ${device.name} in $modeName mode...&#39;);
+
+    final TargetPlatform targetPlatform = await device.targetPlatform;  // 设备的平台架构
+
+    // 应用的对象
+    package = await ApplicationPackageFactory.instance.getPackageForPlatform(
+      targetPlatform,
+      applicationBinary: hotRunner.applicationBinary,
+    );
+
+    final Map&lt;String, dynamic&gt; platformArgs = &lt;String, dynamic&gt;{};
+
+    // 启动应用程序
+    final Future&lt;LaunchResult&gt; futureResult = device.startApp(
+      package,
+      mainPath: hotRunner.mainPath,
+      debuggingOptions: hotRunner.debuggingOptions,
+      platformArgs: platformArgs,
+      route: route,
+      prebuiltApplication: prebuiltMode,
+      usesTerminalUi: hotRunner.usesTerminalUi,
+      ipv6: hotRunner.ipv6,
+    );
+
+    final LaunchResult result = await futureResult;
+
+    if (!result.started) {
+      printError(&#39;Error launching application on ${device.name}.&#39;);
+      await stopEchoingDeviceLog();
+      return 2;
+    }
+    if (result.hasObservatory) {
+      observatoryUris = &lt;Uri&gt;[result.observatoryUri];
+    } else {
+      observatoryUris = &lt;Uri&gt;[];
+    }
+    return 0;
+  }</code></pre>
+<h3 id="getPackageForPlatform"><a href="#getPackageForPlatform" class="headerlink" title="getPackageForPlatform"></a>getPackageForPlatform</h3><p>根据平台相应创建不同的对象，平台包括：Android、iOS、tester、darwin、web、linux、Windows、Fuchsia</p>
+<pre><code class="dart">class ApplicationPackageFactory {
+  static ApplicationPackageFactory get instance =&gt; context.get&lt;ApplicationPackageFactory&gt;();
+
+  Future&lt;ApplicationPackage&gt; getPackageForPlatform(
+    TargetPlatform platform, {
+    File applicationBinary,
+  }) async {
+    switch (platform) {
+      case TargetPlatform.android_arm:
+      case TargetPlatform.android_arm64:
+      case TargetPlatform.android_x64:
+      case TargetPlatform.android_x86:
+        if (androidSdk?.licensesAvailable == true  &amp;&amp; androidSdk.latestVersion == null) {
+          await checkGradleDependencies();
+        }
+       // FlutterProject.current().android 就是当前flutter工程项目中的android子项目
+        return applicationBinary == null
+            ? await AndroidApk.fromAndroidProject(FlutterProject.current().android)
+            : AndroidApk.fromApk(applicationBinary);
+
+      case TargetPlatform.ios:
+        return applicationBinary == null
+            ? IOSApp.fromIosProject(FlutterProject.current().ios)
+            : IOSApp.fromPrebuiltApp(applicationBinary);
+      case TargetPlatform.tester:
+        return FlutterTesterApp.fromCurrentDirectory();
+      case TargetPlatform.darwin_x64:
+        return applicationBinary == null
+            ? MacOSApp.fromMacOSProject(FlutterProject.current().macos)
+            : MacOSApp.fromPrebuiltApp(applicationBinary);
+      case TargetPlatform.web_javascript:
+        if (!FlutterProject.current().web.existsSync()) {
+          return null;
+        }
+        return WebApplicationPackage(FlutterProject.current());
+      case TargetPlatform.linux_x64:
+        return applicationBinary == null
+            ? LinuxApp.fromLinuxProject(FlutterProject.current().linux)
+            : LinuxApp.fromPrebuiltApp(applicationBinary);
+      case TargetPlatform.windows_x64:
+        return applicationBinary == null
+            ? WindowsApp.fromWindowsProject(FlutterProject.current().windows)
+            : WindowsApp.fromPrebuiltApp(applicationBinary);
+      case TargetPlatform.fuchsia:
+        return applicationBinary == null
+            ? FuchsiaApp.fromFuchsiaProject(FlutterProject.current().fuchsia)
+            : FuchsiaApp.fromPrebuiltApp(applicationBinary);
+    }
+    assert(platform != null);
+    return null;
+  }
+}</code></pre>
+<h3 id="fromAndroidProject"><a href="#fromAndroidProject" class="headerlink" title="fromAndroidProject"></a>fromAndroidProject</h3><p>\flutter\packages\flutter_tools\lib\src\application_package.dart</p>
+<pre><code class="dart"> /// 基于Android配置文件创建一个新的AndroidApk对象。
+  static Future&lt;AndroidApk&gt; fromAndroidProject(AndroidProject androidProject) async {
+    File apkFile;
+    if (androidProject.isUsingGradle) {
+    // 如果是gradle项目，获取apk文件就是在此处执行 Initializing gradle 和 Resolving dependencies 该方法返回build目录中的apk文件路径
+      apkFile = await getGradleAppOut(androidProject);
+      if (apkFile.existsSync()) {
+
+      //从.apk中获取信息。gradle构建脚本可能会改变应用程序Id，因此我们需要查看实际构建了什么。     
+        return AndroidApk.fromApk(apkFile);
+      }
+    } else {//.apk还没有建立起来，所以我们只能利用现有的资源。运行命令将抓取一个新的AndroidApk建设后，以获得更新id。
+      apkFile = fs.file(fs.path.join(getAndroidBuildDirectory(), &#39;app.apk&#39;));
+    }
+
+    final File manifest = androidProject.appManifestFile;
+
+    ....省略部分代码.....
+    // 这里主要是读取apk文件内的Androidmanifest xml文件最后构建AndroidApk
+    final String manifestString = manifest.readAsStringSync();
+    xml.XmlDocument document;
+    try {
+      document = xml.parse(manifestString);
+    } 
+   ....省略部分代码.....
+
+    return AndroidApk(
+      id: packageId,
+      file: apkFile,
+      versionCode: null,
+      launchActivity: launchActivity,
+    );
+  }
+</code></pre>
+<pre><code class="dart">/// 依赖存在的APK，创建一个新的AndroidApk对象。
+  factory AndroidApk.fromApk(File apk) {
+    final String aaptPath = androidSdk?.latestVersion?.aaptPath;
+    if (aaptPath == null) {
+      printError(userMessages.aaptNotFound);
+      return null;
+    }
+
+//aapt 工具 dump &#39;AndroidManifest.xml&#39;文件的 xml树结构
+    String apptStdout;
+    try {
+      apptStdout = runCheckedSync(&lt;String&gt;[
+        aaptPath,
+        &#39;dump&#39;,
+        &#39;xmltree&#39;,
+        apk.path,
+        &#39;AndroidManifest.xml&#39;,
+      ]);
+    } catch (error) {
+      printError(&#39;Failed to extract manifest from APK: $error.&#39;);
+      return null;
+    }
+
+    final ApkManifestData data = ApkManifestData.parseFromXmlDump(apptStdout);
+
+....省略部分代码.....
+
+    return AndroidApk(
+      id: data.packageName,
+      file: apk,
+      versionCode: int.tryParse(data.versionCode),
+      launchActivity: &#39;${data.packageName}/${data.launchableActivityName}&#39;,
+    );
+  }</code></pre>
+<h3 id="AndroidDevice-startApp"><a href="#AndroidDevice-startApp" class="headerlink" title="AndroidDevice startApp"></a>AndroidDevice startApp</h3><p>由 AndroidDevice startApp，此时来到Android平台下的AndroidDevice类所在的文件，路径\flutter\packages\flutter_tools\lib\src\android\android_device.dart</p>
+<pre><code class="dart">class AndroidDevice extends Device {
+
+....省略部分代码....
+
+  @override
+  Future&lt;LaunchResult&gt; startApp(
+    ApplicationPackage package, {
+    String mainPath,
+    String route,
+    DebuggingOptions debuggingOptions,
+    Map&lt;String, dynamic&gt; platformArgs,
+    bool prebuiltApplication = false,
+    bool ipv6 = false,
+    bool usesTerminalUi = true,
+  }) async {
+    if (!await _checkForSupportedAdbVersion() || !await _checkForSupportedAndroidVersion())
+      return LaunchResult.failed();
+
+    final TargetPlatform devicePlatform = await targetPlatform;
+    //检查架构信息是否支持
+    if (!(devicePlatform == TargetPlatform.android_arm ||
+          devicePlatform == TargetPlatform.android_arm64) &amp;&amp;
+        !debuggingOptions.buildInfo.isDebug) {
+      printError(&#39;Profile and release builds are only supported on ARM targets.&#39;);
+      return LaunchResult.failed();
+    }
+
+    AndroidArch androidArch;
+    switch (devicePlatform) {
+      case TargetPlatform.android_arm:
+        androidArch = AndroidArch.armeabi_v7a;
+        break;
+      case TargetPlatform.android_arm64:
+        androidArch = AndroidArch.arm64_v8a;
+        break;
+      case TargetPlatform.android_x64:
+        androidArch = AndroidArch.x86_64;
+        break;
+      case TargetPlatform.android_x86:
+        androidArch = AndroidArch.x86;
+        break;
+      default:
+        printError(&#39;Android platforms are only supported.&#39;);
+        return LaunchResult.failed();
+    }
+
+    if (!prebuiltApplication || androidSdk.licensesAvailable &amp;&amp; androidSdk.latestVersion == null) {
+      printTrace(&#39;Building APK&#39;);
+      final FlutterProject project = FlutterProject.current();
+
+      // assembleDebug 开始构建APK
+      await buildApk(
+          project: project,
+          target: mainPath,
+          androidBuildInfo: AndroidBuildInfo(debuggingOptions.buildInfo,
+            targetArchs: &lt;AndroidArch&gt;[androidArch]
+          ),
+      );
+
+      // APK 包已经构建完成，这时候可以从apk文件更新Application ID和Activity 名称
+
+      package = await AndroidApk.fromAndroidProject(project.android);
+    }
+
+    // 解析失败，抛出异常,退出编译
+    if (package == null) {
+      throwToolExit(&#39;Problem building Android application: see above error(s).&#39;);
+    }
+
+    await stopApp(package);
+
+// 运行adb install 命令来安装上面生成的Apk文件。这里下面会有调用方法讲解，其实就是调用了adb install命令。
+    if (!await _installLatestApp(package))
+      return LaunchResult.failed();
+
+
+    ......省略部分代码.......
+
+    List&lt;String&gt; cmd;
+
+    cmd = &lt;String&gt;[
+      &#39;shell&#39;, &#39;am&#39;, &#39;start&#39;,
+      &#39;-a&#39;, &#39;android.intent.action.RUN&#39;,
+      &#39;-f&#39;, &#39;0x20000000&#39;, // FLAG_ACTIVITY_SINGLE_TOP
+      &#39;--ez&#39;, &#39;enable-background-compilation&#39;, &#39;true&#39;,
+      &#39;--ez&#39;, &#39;enable-dart-profiling&#39;, &#39;true&#39;,
+      if (traceStartup)
+        ...&lt;String&gt;[&#39;--ez&#39;, &#39;trace-startup&#39;, &#39;true&#39;],
+      if (route != null)
+        ...&lt;String&gt;[&#39;--es&#39;, &#39;route&#39;, route],
+      if (debuggingOptions.enableSoftwareRendering)
+        ...&lt;String&gt;[&#39;--ez&#39;, &#39;enable-software-rendering&#39;, &#39;true&#39;],
+      if (debuggingOptions.skiaDeterministicRendering)
+        ...&lt;String&gt;[&#39;--ez&#39;, &#39;skia-deterministic-rendering&#39;, &#39;true&#39;],
+      if (debuggingOptions.traceSkia)
+        ...&lt;String&gt;[&#39;--ez&#39;, &#39;trace-skia&#39;, &#39;true&#39;],
+      if (debuggingOptions.traceSystrace)
+        ...&lt;String&gt;[&#39;--ez&#39;, &#39;trace-systrace&#39;, &#39;true&#39;],
+      if (debuggingOptions.dumpSkpOnShaderCompilation)
+        ...&lt;String&gt;[&#39;--ez&#39;, &#39;dump-skp-on-shader-compilation&#39;, &#39;true&#39;],
+      if (debuggingOptions.debuggingEnabled)
+        ...&lt;String&gt;[
+          if (debuggingOptions.buildInfo.isDebug)
+            ...&lt;String&gt;[
+              ...&lt;String&gt;[&#39;--ez&#39;, &#39;enable-checked-mode&#39;, &#39;true&#39;],
+              ...&lt;String&gt;[&#39;--ez&#39;, &#39;verify-entry-points&#39;, &#39;true&#39;],
+            ],
+          if (debuggingOptions.startPaused)
+            ...&lt;String&gt;[&#39;--ez&#39;, &#39;start-paused&#39;, &#39;true&#39;],
+          if (debuggingOptions.disableServiceAuthCodes)
+            ...&lt;String&gt;[&#39;--ez&#39;, &#39;disable-service-auth-codes&#39;, &#39;true&#39;],
+          if (debuggingOptions.dartFlags.isNotEmpty)
+            ...&lt;String&gt;[&#39;--es&#39;, &#39;dart-flags&#39;, debuggingOptions.dartFlags],
+          if (debuggingOptions.useTestFonts)
+            ...&lt;String&gt;[&#39;--ez&#39;, &#39;use-test-fonts&#39;, &#39;true&#39;],
+          if (debuggingOptions.verboseSystemLogs)
+            ...&lt;String&gt;[&#39;--ez&#39;, &#39;verbose-logging&#39;, &#39;true&#39;],
+        ],
+      apk.launchActivity,//cmd 命令 启动Activity
+    ];
+
+    final String result = (await runAdbCheckedAsync(cmd)).stdout;
+
+    // 即使调用失败，也会返回0。
+    if (result.contains(&#39;Error: &#39;)) {
+      printError(result.trim(), wrap: false);
+      return LaunchResult.failed();
+    }
+
+    if (!debuggingOptions.debuggingEnabled)
+      return LaunchResult.succeeded(); //Activity启动成功
+
+    try {
+      Uri observatoryUri;
+      if (debuggingOptions.buildInfo.isDebug || debuggingOptions.buildInfo.isProfile) {
+        observatoryUri = await observatoryDiscovery.uri;
+      }
+      return LaunchResult.succeeded(observatoryUri: observatoryUri);
+    } catch (error) {
+      printError(&#39;Error waiting for a debug connection: $error&#39;);
+      return LaunchResult.failed();
+    } finally {
+      await observatoryDiscovery.cancel();
+    }
+  }</code></pre>
+<h3 id="startApp-apk-buildApk"><a href="#startApp-apk-buildApk" class="headerlink" title="startApp apk buildApk"></a>startApp apk buildApk</h3><p>\flutter\packages\flutter_tools\lib\src\android\apk.dart</p>
+<pre><code class="dart">Future&lt;void&gt; buildApk({
+  @required FlutterProject project,
+  @required String target,
+  @required AndroidBuildInfo androidBuildInfo,
+}) async {
+  ....省略部分代码.....
+
+  //调用Gradle脚本，构建Android 工程
+  await buildGradleProject(
+    project: project,
+    androidBuildInfo: androidBuildInfo,
+    target: target,
+    isBuildingBundle: false,
+  );
+  androidSdk.reinitialize();
+}</code></pre>
+<h3 id="startApp-installApp"><a href="#startApp-installApp" class="headerlink" title="startApp installApp"></a>startApp installApp</h3><p>\flutter\packages\flutter_tools\lib\src\android\android_device.dart</p>
+<pre><code> @override
+  Future&lt;bool&gt; installApp(ApplicationPackage app) async {
+    final AndroidApk apk = app;
+     ....省略部分代码.....
+
+     // 这里执行了adb install 命令
+    final RunResult installResult = await runAsync(adbCommandForDevice(&lt;String&gt;[&#39;install&#39;, &#39;-t&#39;, &#39;-r&#39;, apk.file.path]));
+     ....省略部分代码.....
+
+    return true;
+  }</code></pre><p>至此，Android apk 就被启动起来了，好像是少了些什么？Flutter 资源方面是如何被编译处理打包进去的呢？</p>
+<p>翻源码目录，在这个文件gradle/flutter.gradle下，应用了插件 FlutterPlugin</p>
+<h2 id="FlutterPlugin"><a href="#FlutterPlugin" class="headerlink" title="FlutterPlugin"></a>FlutterPlugin</h2><p>\flutter\packages\flutter_tools\gradle\flutter.gradle</p>
+<pre><code class="groovy">apply plugin: FlutterPlugin
+
+@Override
+    void apply(Project project) {
+        // flutter 工程配置
+        project.extensions.create(&quot;flutter&quot;, FlutterExtension)
+        // 添加 flutterTask，编译操作就在这个任务内
+        project.afterEvaluate this.&amp;addFlutterTasks
+
+        String flutterRootPath = resolveProperty(project, &quot;flutter.sdk&quot;, System.env.FLUTTER_ROOT)
+        if (flutterRootPath == null) {
+            throw new GradleException(&quot;没发现FlutterSDK. 定义一下local.properties的SDK路径或配一下系统环境变量FLUTTER_ROOT.&quot;)
+        }
+        flutterRoot = project.file(flutterRootPath)
+        if (!flutterRoot.isDirectory()) {
+            throw new GradleException(&quot;flutter.sdk must point to the Flutter SDK directory&quot;)
+        }
+
+        String flutterExecutableName = Os.isFamily(Os.FAMILY_WINDOWS) ? &quot;flutter.bat&quot; : &quot;flutter&quot;
+        flutterExecutable = Paths.get(flutterRoot.absolutePath, &quot;bin&quot;, flutterExecutableName).toFile();
+
+// 配置了本地自己编译的引擎目录 
+        if (useLocalEngine(project)) {
+            String engineOutPath = project.property(&#39;localEngineOut&#39;)
+            File engineOut = project.file(engineOutPath)
+            if (!engineOut.isDirectory()) {
+                throw new GradleException(&#39;localEngineOut must point to a local engine build&#39;)
+            }
+            Path baseEnginePath = Paths.get(engineOut.absolutePath)
+            flutterJar = baseEnginePath.resolve(&quot;flutter.jar&quot;).toFile()
+            if (!flutterJar.isFile()) {
+                throw new GradleException(&quot;本地引擎没有发现: $flutterJar&quot;)
+            }
+            localEngine = engineOut.name
+            localEngineSrcPath = engineOut.parentFile.parent
+            // 本地引擎是为其中一种构建类型构建的。
+            // 无论如何，每个构建的类型都用同样的引擎.
+            project.android.buildTypes.each {
+                addApiDependencies(project, it.name, project.files {
+                    flutterJar
+                })
+            }
+        } else {
+// 找到flutter engine目录，这里面有已经编译好的所有平台架构所有build type的flutter engine。
+            String basePlatformArch = getBasePlatform(project)
+
+// 这意味着只包含编译后的类，但是它将包含&#39;libflutter.so&#39;
+            Path baseEnginePath = Paths.get(flutterRoot.absolutePath, &quot;bin&quot;, &quot;cache&quot;, &quot;artifacts&quot;, &quot;engine&quot;)
+
+// Android平台提供的是一个jar包，flutter.jar，在这个jar包中包含了engine so库，和Java Api库。
+            File debugJar = baseEnginePath.resolve(&quot;${basePlatformArch}&quot;)
+            .resolve(&quot;flutter.jar&quot;).toFile()
+            baseJar[&quot;debug&quot;] = debugJar
+            if (!debugJar.isFile()) {
+                project.exec {
+                    executable flutterExecutable.absolutePath
+                    args &quot;--suppress-analytics&quot;
+                    args &quot;precache&quot;
+                }
+                if (!debugJar.isFile()) {
+                    throw new GradleException(&quot;Unable to find flutter.jar in SDK: ${debugJar}&quot;)
+                }
+            }
+            baseJar[&quot;profile&quot;] = baseEnginePath.resolve(&quot;${basePlatformArch}-profile&quot;).resolve(&quot;flutter.jar&quot;).toFile()
+            baseJar[&quot;release&quot;] = baseEnginePath.resolve(&quot;${basePlatformArch}-release&quot;).resolve(&quot;flutter.jar&quot;).toFile()
+
+            //向所有 Api 配置添加 flutter.jar 依赖项，包括应用 Flutter 插件后添加的自定义依赖项。
+            project.android.buildTypes.each {
+                def buildMode = buildModeFor(it)
+                addApiDependencies(project, it.name, project.files {
+                    baseJar[buildMode]
+                })
+            }
+            project.android.buildTypes.whenObjectAdded {
+                def buildMode = buildModeFor(it)
+                addApiDependencies(project, it.name, project.files {
+                    baseJar[buildMode]
+                })
+            }
+        }
+    }</code></pre>
+<h3 id="addFlutterTasks"><a href="#addFlutterTasks" class="headerlink" title="addFlutterTasks"></a>addFlutterTasks</h3><pre><code class="groovy"> private void addFlutterTasks(Project project) {
+
+....省略部分代码.....
+        String target = project.flutter.target
+        if (target == null) {// 设置 target
+            target = &#39;lib/main.dart&#39; //这里就是Flutter的入口路径
+        }
+        if (project.hasProperty(&#39;target&#39;)) {
+            target = project.property(&#39;target&#39;)
+        }
+
+        String[] fileSystemRootsValue = null
+        if (project.hasProperty(&#39;filesystem-roots&#39;)) {
+            fileSystemRootsValue = project.property(&#39;filesystem-roots&#39;).split(&#39;\\|&#39;)
+        }
+        String fileSystemSchemeValue = null
+        if (project.hasProperty(&#39;filesystem-scheme&#39;)) {
+            fileSystemSchemeValue = project.property(&#39;filesystem-scheme&#39;)
+        }
+        Boolean trackWidgetCreationValue = false
+        if (project.hasProperty(&#39;track-widget-creation&#39;)) {
+            trackWidgetCreationValue = project.property(&#39;track-widget-creation&#39;).toBoolean()
+        }
+        String compilationTraceFilePathValue = null
+        if (project.hasProperty(&#39;compilation-trace-file&#39;)) {
+            compilationTraceFilePathValue = project.property(&#39;compilation-trace-file&#39;)
+        }
+        Boolean createPatchValue = false
+        if (project.hasProperty(&#39;patch&#39;)) {
+            createPatchValue = project.property(&#39;patch&#39;).toBoolean()
+        }
+        Integer buildNumberValue = null
+        if (project.hasProperty(&#39;build-number&#39;)) {
+            buildNumberValue = project.property(&#39;build-number&#39;).toInteger()
+        }
+        String baselineDirValue = null
+        if (project.hasProperty(&#39;baseline-dir&#39;)) {
+            baselineDirValue = project.property(&#39;baseline-dir&#39;)
+        }
+        String extraFrontEndOptionsValue = null
+        if (project.hasProperty(&#39;extra-front-end-options&#39;)) {
+            extraFrontEndOptionsValue = project.property(&#39;extra-front-end-options&#39;)
+        }
+        String extraGenSnapshotOptionsValue = null
+        if (project.hasProperty(&#39;extra-gen-snapshot-options&#39;)) {
+            extraGenSnapshotOptionsValue = project.property(&#39;extra-gen-snapshot-options&#39;)
+        }
+
+        def targetPlatforms = getTargetPlatforms(project)
+        def addFlutterDeps = { variant -&gt;
+            if (splitPerAbi(project)) {
+                variant.outputs.each { output -&gt;
+//将新版本代码分配给 versionCodeOverride，它将更改版本代码只针对输出APK，而不是变量本身。
+//简单地跳过这一步使Gradle使用变量的值。APK的版本代码。
+//更多信息，请参见https://developer.android.com/studio/build/configu-apk -split
+                def abiVersionCode = ABI_VERSION.get(output.getFilter(OutputFile.ABI))
+                    if (abiVersionCode != null) {
+                        output.versionCodeOverride =
+                            abiVersionCode * 1000 + variant.versionCode
+                    }
+                }
+            }
+
+// 配置flutter命令运行参数
+            String flutterBuildMode = buildModeFor(variant.buildType)
+            if (flutterBuildMode == &#39;debug&#39; &amp;&amp; project.tasks.findByName(&quot;${FLUTTER_BUILD_PREFIX}X86Jar&quot;)) {
+              Task task = project.tasks.findByName(&quot;compile${variant.name.capitalize()}JavaWithJavac&quot;)
+                if (task) {
+  // 如果是debug模式，X86架构的任务添加到javac编译任务上。
+                    task.dependsOn project.flutterBuildX86Jar
+                }
+                task = project.tasks.findByName(&quot;compile${variant.name.capitalize()}Kotlin&quot;)
+                if (task) {
+   //kotlin项目
+                    task.dependsOn project.flutterBuildX86Jar
+                }
+            }
+
+            def compileTasks = targetPlatforms.collect { targetArch -&gt;
+                String abiValue = PLATFORM_ARCH_MAP[targetArch]
+                String taskName = toCammelCase([&quot;compile&quot;, FLUTTER_BUILD_PREFIX, variant.name, targetArch.replace(&#39;android-&#39;, &#39;&#39;)])
+
+                // 创建 Flutter 任务
+                FlutterTask compileTask = project.tasks.create(name: taskName, type: FlutterTask) {
+                    flutterRoot this.flutterRoot
+                    flutterExecutable this.flutterExecutable
+                    buildMode flutterBuildMode
+                    localEngine this.localEngine
+                    localEngineSrcPath this.localEngineSrcPath
+                    abi abiValue
+                    targetPath target
+                    verbose isVerbose(project)
+                    fileSystemRoots fileSystemRootsValue
+                    fileSystemScheme fileSystemSchemeValue
+                    trackWidgetCreation trackWidgetCreationValue
+                    compilationTraceFilePath compilationTraceFilePathValue
+                    createPatch createPatchValue
+                    buildNumber buildNumberValue
+                    baselineDir baselineDirValue
+                    targetPlatform targetArch
+                    sourceDir project.file(project.flutter.source)
+                    intermediateDir project.file(&quot;${project.buildDir}/${AndroidProject.FD_INTERMEDIATES}/flutter/${variant.name}/${targetArch}&quot;)
+                    extraFrontEndOptions extraFrontEndOptionsValue
+                    extraGenSnapshotOptions extraGenSnapshotOptionsValue
+                }
+            }
+
+            def libJar = project.file(&quot;${project.buildDir}/${AndroidProject.FD_INTERMEDIATES}/flutter/${variant.name}/libs.jar&quot;)
+            def libFlutterPlatforms = targetPlatforms.collect()
+            // x86/x86_64 原生库仅在debug模式下使用.
+            if (flutterBuildMode == &#39;debug&#39;) {
+                libFlutterPlatforms.add(&#39;android-x86&#39;)
+                libFlutterPlatforms.add(&#39;android-x64&#39;)
+            }
+            Task packFlutterSnapshotsAndLibsTask = project.tasks.create(name: &quot;packLibs${FLUTTER_BUILD_PREFIX}${variant.name.capitalize()}&quot;, type: Jar) {
+                destinationDir libJar.parentFile
+                archiveName libJar.name
+                libFlutterPlatforms.each { targetArch -&gt;
+//这个二次检查防止包含&#39;libflutter.so&#39;，它包含在基础平台 lib.jar 中。
+//很不幸的是，“packagingOptions”中的“pickFirst”设置不起作用。当项目“:flutter”被包含作为实现依赖项时，会导致重复的“libflutter.so”。 “libflutter.so”文件通常根据不同架构打入lib.jar中。
+                    if (getBasePlatform(project) == targetArch) {
+                        return
+                    }
+
+                    // 当指定了本地引擎时,其他架构不包括“libflutter.so“。
+                    if (useLocalEngine(project)) {
+                        return
+                    }
+                    def engineArtifactSubdir = getEngineArtifactDirName(variant.buildType, targetArch);
+                    // 包含 `libflutter.so`.
+             from(project.zipTree(&quot;${flutterRoot}/bin/cache/artifacts/engine/${engineArtifactSubdir}/flutter.jar&quot;)) {
+                        include &#39;lib/**&#39;
+                    }
+                }
+                dependsOn compileTasks
+                // 添加 ELF 库.
+                compileTasks.each { compileTask -&gt;
+                    from(compileTask.intermediateDir) {
+                        include &#39;*.so&#39;
+                        rename { String filename -&gt;
+                            return &quot;lib/${compileTask.abi}/lib${filename}&quot;
+                        }
+                    }
+                }
+            }
+
+            // 在`lib/`目录，包括快照和文件libflutter.so
+            addApiDependencies(project, variant.name, project.files {
+                packFlutterSnapshotsAndLibsTask
+            })
+
+            // 我们知道当这些任务存在时，flutter应用程序是Android应用程序中的子项目。
+            Task packageAssets = project.tasks.findByPath(&quot;:flutter:package${variant.name.capitalize()}Assets&quot;)
+            Task cleanPackageAssets = project.tasks.findByPath(&quot;:flutter:cleanPackage${variant.name.capitalize()}Assets&quot;)
+            Task copyFlutterAssetsTask = project.tasks.create(name: &quot;copyFlutterAssets${variant.name.capitalize()}&quot;, type: Copy) {
+                dependsOn compileTasks
+                if (packageAssets &amp;&amp; cleanPackageAssets) {
+                    dependsOn packageAssets
+                    dependsOn cleanPackageAssets
+                    into packageAssets.outputDir
+                } else {
+                    dependsOn variant.mergeAssets
+                    dependsOn &quot;clean${variant.mergeAssets.name.capitalize()}&quot;
+                    variant.mergeAssets.mustRunAfter(&quot;clean${variant.mergeAssets.name.capitalize()}&quot;)
+                    into variant.mergeAssets.outputDir
+                }
+                compileTasks.each { flutterTask -&gt;
+                    with flutterTask.assets
+                }
+            }
+            variant.outputs.first().processResources.dependsOn(copyFlutterAssetsTask)
+        }
+        if (project.android.hasProperty(&quot;applicationVariants&quot;)) {
+            project.android.applicationVariants.all addFlutterDeps
+        } else {
+            project.android.libraryVariants.all addFlutterDeps
+        }
+
+        if (buildPluginAsAar()) {
+            addPluginTasks(project)
+
+            List&lt;String&gt; tasksToExecute = project.gradle.startParameter.taskNames
+            Set buildTypes = getBuildTypesForTasks(project, tasksToExecute)
+            if (tasksToExecute.contains(&quot;clean&quot;)) {
+
+                // 由于插件是在配置期间构建的，任务“clean”不能与组装任务一起运行。
+                if (!buildTypes.empty) {
+                    throw new GradleException(&quot;不能运行clean任务和其他assemble任务&quot;)
+                }
+            }
+            // 在稍后调用任务“assembly*”时构建插件。
+            if (!buildTypes.empty) {
+                // 在配置期间构建插件。
+                // 启用Jetifier时需要这样做，否则无法添加实现依赖项。
+                buildPlugins(project, buildTypes)
+            }
+        } else {
+            getPluginList(project).each { name, _ -&gt;
+                def pluginProject = project.rootProject.findProject(&quot;:$name&quot;)
+                if (pluginProject != null) {
+                    project.dependencies {
+                        if (project.getConfigurations().findByName(&quot;implementation&quot;)) {
+                            implementation pluginProject
+                        } else {
+                            compile pluginProject
+                        }
+                    }
+                    pluginProject.afterEvaluate {
+                        pluginProject.android.buildTypes {
+                            profile {
+                                initWith debug
+                            }
+                        }
+                        pluginProject.android.buildTypes.each {
+                            def buildMode = buildModeFor(it)
+                            addFlutterJarCompileOnlyDependency(pluginProject, it.name, project.files( flutterJar ?: baseJar[buildMode] ))
+                        }
+                        pluginProject.android.buildTypes.whenObjectAdded {
+                            def buildMode = buildModeFor(it)
+                            addFlutterJarCompileOnlyDependency(pluginProject, it.name, project.files( flutterJar ?: baseJar[buildMode] ))
+                        }
+                    }
+                } else {
+                    project.logger.error(&quot;Plugin project :$name not found. Please update settings.gradle.&quot;)
+                }
+            }
+        }
+    }</code></pre>
+<h3 id="buildBundle"><a href="#buildBundle" class="headerlink" title="buildBundle"></a>buildBundle</h3><p>flutterTask 编译 dart 资源</p>
+<pre><code class="groovy">void buildBundle() {
+        if (!sourceDir.isDirectory()) {
+            throw new GradleException(&quot;无效的Flutter资源目录: ${sourceDir}&quot;)
+        }
+
+        intermediateDir.mkdirs()
+
+        if (buildMode == &quot;profile&quot; || buildMode == &quot;release&quot;) {
+            project.exec {
+                executable flutterExecutable.absolutePath
+                workingDir sourceDir
+                if (localEngine != null) {
+                    args &quot;--local-engine&quot;, localEngine
+                    args &quot;--local-engine-src-path&quot;, localEngineSrcPath
+                }
+                args &quot;build&quot;, &quot;aot&quot;
+                args &quot;--suppress-analytics&quot;
+                args &quot;--quiet&quot;
+                args &quot;--target&quot;, targetPath
+                args &quot;--output-dir&quot;, &quot;${intermediateDir}&quot;
+                args &quot;--target-platform&quot;, &quot;${targetPlatform}&quot;
+                if (trackWidgetCreation) {
+                    args &quot;--track-widget-creation&quot;
+                }
+                if (extraFrontEndOptions != null) {
+                    args &quot;--extra-front-end-options&quot;, &quot;${extraFrontEndOptions}&quot;
+                }
+                if (extraGenSnapshotOptions != null) {
+                    args &quot;--extra-gen-snapshot-options&quot;, &quot;${extraGenSnapshotOptions}&quot;
+                }
+                args &quot;--${buildMode}&quot;
+            }
+        }
+
+        project.exec {
+            executable flutterExecutable.absolutePath // executable 就是flutter命令
+            workingDir sourceDir // dart代码目录
+
+            if (localEngine != null) { // 可以配置本地引擎
+                args &quot;--local-engine&quot;, localEngine
+                args &quot;--local-engine-src-path&quot;, localEngineSrcPath
+            }
+            // 配置flutter 命令参数，执行的是flutter build bundle 来编译dart代码。
+            args &quot;build&quot;, &quot;bundle&quot;
+            args &quot;--target&quot;, targetPath
+            args &quot;--target-platform&quot;, &quot;${targetPlatform}&quot;
+            if (verbose) {
+                args &quot;--verbose&quot;
+            }
+            if (fileSystemRoots != null) {
+                for (root in fileSystemRoots) {
+                    args &quot;--filesystem-root&quot;, root
+                }
+            }
+            if (fileSystemScheme != null) {
+                args &quot;--filesystem-scheme&quot;, fileSystemScheme
+            }
+            if (trackWidgetCreation) {
+                args &quot;--track-widget-creation&quot;
+            }
+            if (compilationTraceFilePath != null) {
+                args &quot;--compilation-trace-file&quot;, compilationTraceFilePath
+            }
+            if (createPatch) {
+                args &quot;--patch&quot;
+                args &quot;--build-number&quot;, project.android.defaultConfig.versionCode
+                if (buildNumber != null) {
+                    assert buildNumber == project.android.defaultConfig.versionCode
+                }
+            }
+            if (baselineDir != null) {
+                args &quot;--baseline-dir&quot;, baselineDir
+            }
+            if (extraFrontEndOptions != null) {
+                args &quot;--extra-front-end-options&quot;, &quot;${extraFrontEndOptions}&quot;
+            }
+            if (extraGenSnapshotOptions != null) {
+                args &quot;--extra-gen-snapshot-options&quot;, &quot;${extraGenSnapshotOptions}&quot;
+            }
+            if (buildMode == &quot;release&quot; || buildMode == &quot;profile&quot;) {
+                args &quot;--precompiled&quot;
+            } else {
+                args &quot;--depfile&quot;, &quot;${intermediateDir}/snapshot_blob.bin.d&quot;
+            }
+            args &quot;--asset-dir&quot;, &quot;${intermediateDir}/flutter_assets&quot;
+            if (buildMode == &quot;debug&quot;) {
+                args &quot;--debug&quot;
+            }
+            if (buildMode == &quot;profile&quot;) {
+                args &quot;--profile&quot;
+            }
+            if (buildMode == &quot;release&quot;) {
+                args &quot;--release&quot;
+            }
+        }
+    }</code></pre>
+<h3 id="编译dart代码"><a href="#编译dart代码" class="headerlink" title="编译dart代码"></a>编译dart代码</h3><p>flutterTask 中会执行 flutter build bundle 来编译 dart 代码。有关于 flutter build bundle 的介绍后面另起一篇，敬请期待。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>针对 Android 平台 flutter run 流程做一个比较细致的介绍。跨平台技术还是要根据不同平台调用不同的脚本。分久必合合久必分。</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Flutter/">Flutter</a>
+                    
+                  </span>
+                
+              </p>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Flutter 揭密命令行 flutter run&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

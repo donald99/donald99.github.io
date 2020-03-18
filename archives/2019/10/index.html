@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 
 
@@ -14,10 +14,10 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   
   <meta name="theme-color" content="#2f4154">
-  <meta name="description" content="">
+  <meta name="description" content="大道至简">
   <meta name="author" content="刘圣文">
-  <meta name="keywords" content="">
-  <title>Archives - 大道至简</title>
+  <meta name="keywords" content="Android;Flutter">
+  <title>归档 - 大道至简</title>
 
   <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
 <link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
@@ -43,7 +43,7 @@
 
 
 <body>
-  <header style="height: 80vh;">
+  <header style="height: 50vh;">
     <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand"
@@ -64,7 +64,7 @@
           
           
           <li class="nav-item">
-            <a class="nav-link" href="/">Home</a>
+            <a class="nav-link" href="/">首页</a>
           </li>
         
           
@@ -72,7 +72,7 @@
           
           
           <li class="nav-item">
-            <a class="nav-link" href="/archives/">Archives</a>
+            <a class="nav-link" href="/archives/">归档</a>
           </li>
         
           
@@ -80,7 +80,7 @@
           
           
           <li class="nav-item">
-            <a class="nav-link" href="/categories/">Categories</a>
+            <a class="nav-link" href="/about/">关于</a>
           </li>
         
           
@@ -88,15 +88,7 @@
           
           
           <li class="nav-item">
-            <a class="nav-link" href="/tags/">Tags</a>
-          </li>
-        
-          
-          
-          
-          
-          <li class="nav-item">
-            <a class="nav-link" href="/about/">About</a>
+            <a class="nav-link" href="/links/">友链</a>
           </li>
         
         
@@ -141,22 +133,22 @@
                 
 
 <div class="list-group">
-  <p class="h4">2 posts in total.</p>
+  <p class="h4">共计 6 篇文章</p>
   <hr>
   
     
       
-      <p class="h5">2020</p>
+      <p class="h5">2019</p>
     
-    <a href="/2020/03/11/article-title/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">article title</span>
-      <span style="float: right;">03-11</span>
+    <a href="/2019/10/30/Flutter%20%E5%9B%BE%E7%89%87%E5%8A%A0%E8%BD%BD/" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">Flutter 图片加载</span>
+      <span style="float: right;">10-30</span>
     </a>
   
     
-    <a href="/2020/03/11/hello-world/" class="list-group-item list-group-item-action">
-      <span class="archive-post-title">Hello World</span>
-      <span style="float: right;">03-11</span>
+    <a href="/2019/10/28/%E5%80%BC%E5%BE%97%E5%BA%86%E8%B4%BA%E7%9A%84%E4%BA%8B%E6%83%85%E4%B8%BAFlutter%E7%A4%BE%E5%8C%BA%E5%81%9A%E8%B4%A1%E7%8C%AE/" class="list-group-item list-group-item-action">
+      <span class="archive-post-title">值得庆贺的事情为Flutter社区做贡献</span>
+      <span style="float: right;">10-28</span>
     </a>
   
 </div>
@@ -183,7 +175,7 @@
   <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
     <div class="modal-content">
       <div class="modal-header text-center">
-        <h4 class="modal-title w-100 font-weight-bold">Search</h4>
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
         <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -192,7 +184,7 @@
         <div class="md-form mb-5">
           <input type="text" id="local-search-input" class="form-control validate">
           <label data-error="x" data-success="v"
-                 for="local-search-input">keyword</label>
+                 for="local-search-input">关键词</label>
         </div>
         <div class="list-group" id="local-search-result"></div>
       </div>
@@ -258,10 +250,10 @@
     var typed = new Typed('#subtitle', {
       strings: [
         '  ',
-        "Archive&nbsp;",
+        "程序必须是为了给人看而写,给机器去执行只是附带任务&nbsp;",
       ],
       cursorChar: "_",
-      typeSpeed: 70,
+      typeSpeed: 80,
       loop: false,
     });
     typed.stop();

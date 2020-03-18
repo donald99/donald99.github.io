@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="大道至简">
+  <meta name="author" content="刘圣文">
+  <meta name="keywords" content="Android;Flutter">
+  <title>Flutter 图片加载 - 大道至简</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大道至简</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">关于</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/links/">友链</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  星期三, 十月 30日 2019, 8:57 晚上
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    2.7k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta">
+                      <i class="far fa-clock"></i>
+                      12 分钟
+                  </span>
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <div class="markdown-body">
+              <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本篇文章你将获得？</p>
+<p>1、Flutter 图片加载方式</p>
+<p>2、Flutter 图片加载源码实现流程</p>
+<p>3、Flutter 图片加载优化点有什么</p>
+<h3 id="Flutter-Image"><a href="#Flutter-Image" class="headerlink" title="Flutter Image"></a>Flutter Image</h3><p>在 Flutter 中 Image 是展示图片的 widget ，用于从 ImageProvider 获取图像。Image 支持的图片格式有 JPEG、WebP、GIF、animated WebP/GIF 、PNG 、BMP、 and WBMP。</p>
+<p>Image 结构如下：<img src="https://p3.ssl.qhimg.com/t01327ab35f7e5254bc.jpg" srcset="/img/loading.gif" alt=""></p>
+<p>可以看到图片上部有多个加载方式。</p>
+<h3 id="Flutter-图片加载方式"><a href="#Flutter-图片加载方式" class="headerlink" title="Flutter 图片加载方式"></a>Flutter 图片加载方式</h3><h5 id="1、Image-asset"><a href="#1、Image-asset" class="headerlink" title="1、Image.asset"></a>1、<a href="https://docs.flutter.io/flutter/widgets/Image/Image.asset.html">Image.asset</a></h5><h5 id="使用-key-从AssetBundle获得的图片；"><a href="#使用-key-从AssetBundle获得的图片；" class="headerlink" title="使用 key 从AssetBundle获得的图片；"></a>使用 key 从AssetBundle获得的图片；</h5><p>两种方式如下：</p>
+<pre><code class="dart">Image(height: 100, width: 100, image: AssetImage(happy.png), )</code></pre>
+<pre><code class="dart">Image.asset( happy.png, width: 100, height: 100,)</code></pre>
+<p>当然这一方式，需要在 pubspec.yaml 文件中配置图片路径。</p>
+<h5 id="2、Image-network"><a href="#2、Image-network" class="headerlink" title="2、Image.network"></a>2、<a href="https://docs.flutter.io/flutter/widgets/Image/Image.network.html">Image.network</a></h5><h5 id="从网络URL中获取图片；"><a href="#从网络URL中获取图片；" class="headerlink" title="从网络URL中获取图片；"></a>从网络URL中获取图片；</h5><pre><code class="dart">Image.network(&#39;https://p0.ssl.qhimg.com/t0183421f63f84fccaf.gif&#39;,fit: BoxFit.fill);</code></pre>
+<h5 id="3、Image-file"><a href="#3、Image-file" class="headerlink" title="3、Image.file"></a>3、<a href="https://docs.flutter.io/flutter/widgets/Image/Image.file.html">Image.file</a></h5><h5 id="从本地文件中获取图片；"><a href="#从本地文件中获取图片；" class="headerlink" title="从本地文件中获取图片；"></a>从本地文件中获取图片；</h5><pre><code class="dart">Image.file(File(&#39;/sdcard/happy.png&#39;)),</code></pre>
+<h5 id="4、Image-memory"><a href="#4、Image-memory" class="headerlink" title="4、Image.memory"></a>4、<a href="https://docs.flutter.io/flutter/widgets/Image/Image.memory.html">Image.memory</a></h5><h5 id="用于从-Uint8List-获取图片；"><a href="#用于从-Uint8List-获取图片；" class="headerlink" title="用于从 Uint8List 获取图片；"></a>用于从 Uint8List 获取图片；</h5><pre><code class="dart">new Image.memory(Uint8List bytes),</code></pre>
+<p><code>bytes</code> 指内存中的图片数据，将其转化为图片对象。</p>
+<p>Flutter 中 Unit8List 与其他语言数据结构类比：</p>
+<table>
+<thead>
+<tr>
+<th>flutter</th>
+<th>java</th>
+<th>swift</th>
+<th>C</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Uint8List</td>
+<td>byte[]</td>
+<td>FlutterStandardTypedData</td>
+<td>char[]</td>
+</tr>
+</tbody></table>
+<h4 id="其他相关常用的加载图片的方式"><a href="#其他相关常用的加载图片的方式" class="headerlink" title="其他相关常用的加载图片的方式"></a>其他相关常用的加载图片的方式</h4><h5 id="5、CacheNetworkImage"><a href="#5、CacheNetworkImage" class="headerlink" title="5、CacheNetworkImage"></a>5、CacheNetworkImage</h5><h5 id="缓存的网络图片，此类属于-cached-network-image-库；"><a href="#缓存的网络图片，此类属于-cached-network-image-库；" class="headerlink" title="缓存的网络图片，此类属于 cached_network_image 库；"></a>缓存的网络图片，此类属于 cached_network_image 库；</h5><pre><code class="dart">new CachedNetworkImage(
+    fit:BoxFit.fill,
+    width:200,
+    height:100,
+    imageUrl:&#39;https://p0.ssl.qhimg.com/t0183421f63f84fccaf.gif&#39;,
+    placeholder:(context, url) =&gt; new ProgressView(),
+    errorWidget:(context, url, error) =&gt; new Icon(Icons.error),
+);</code></pre>
+<h5 id="6、FadeInImage-memoryNetwork"><a href="#6、FadeInImage-memoryNetwork" class="headerlink" title="6、FadeInImage.memoryNetwork"></a>6、FadeInImage.memoryNetwork</h5><h5 id="默认占位图和淡入效果"><a href="#默认占位图和淡入效果" class="headerlink" title="默认占位图和淡入效果"></a>默认占位图和淡入效果</h5><pre><code class="dart">import &#39;package:transparent_image/transparent_image.dart&#39;;
+
+FadeInImage.memoryNetwork(
+    placeholder: kTransparentImage, //kTransparentImage 属于 transparent_image 库
+    image: &#39;https://p0.ssl.qhimg.com/t0183421f63f84fccaf.gif&#39;,
+);</code></pre>
+<h5 id="7、Icon-Icons-图片参考URL"><a href="#7、Icon-Icons-图片参考URL" class="headerlink" title="7、Icon Icons 图片参考URL"></a>7、Icon <a href="https://material.io/resources/icons/?style=baseline">Icons 图片参考URL</a></h5><pre><code class="dart">new Icon(Icons.android,size: 200,);</code></pre>
+<h3 id="Flutter-加载-images-的分辨率"><a href="#Flutter-加载-images-的分辨率" class="headerlink" title="Flutter 加载 images 的分辨率"></a>Flutter 加载 images 的分辨率</h3><p>Flutter 可以为当前设备加载适合其分辨率的图像。指定不同素设备像比例的图片可以这样分配asset文件夹：</p>
+<ul>
+<li>…icon/happy.png</li>
+<li>…/2.0x/happy.png</li>
+<li>…/3.0x/happy.png</li>
+</ul>
+<p>主资源默认对应于 1.0 倍的分辨率图片；在设备像素比率为 1.8 的设备上会选用 <code>.../2.0x/happy.png</code> ；对于在像素比率 2.7 的设备上 ，会选用 <code>.../3.0x/happy.png</code>。</p>
+<p><code>pubspec.yaml</code>  中 asset 声明中每一项都标识与实际文件对应。但是主资源缺少时，会按分辨率从低到高的顺序寻找加载。这里的加载方案，可以参考 Android 系统中图片加载的逻辑作对比。</p>
+<p>Flutter 打包应用时，资源会按照 key-value 的形式存入 apk 的 assets/flutter_assets/AssetManifest.json 文件中，加载资源时先解析 json 文件，选择最适合的图片进行加载显示，其中 AssetManifest.json 的具体内容简介如：</p>
+<pre><code class="json">{
+    &quot;assets/happy.png&quot;:[
+        &quot;assets/2.0x/happy.png&quot;,
+        &quot;assets/3.0x/happy.png&quot;
+    ]
+}</code></pre>
+<h3 id="Android"><a href="#Android" class="headerlink" title="Android"></a>Android</h3><p>android 上可以通过 AssetManager 获取 asset， 根据 key 查找到 openFd 。</p>
+<p>key 是由 PluginRegistry.Registrar 的 lookupKeyForAsset 与 FlutterView 的 getLookupKeyForAsset 得到；</p>
+<p>PluginRegistry.Registrar 用于开发插件，而 FlutterView 则用于开发平台 app 的 view。</p>
+<h5 id="pubspec-yaml"><a href="#pubspec-yaml" class="headerlink" title="pubspec.yaml"></a>pubspec.yaml</h5><pre><code class="xml">flutter:
+  assets:
+    - icons/happy.png</code></pre>
+<h5 id="Java-plugin-code"><a href="#Java-plugin-code" class="headerlink" title="Java plugin code"></a>Java plugin code</h5><pre><code class="java">AssetManager assetManager = registrar.context().getAssets();
+String key = registrar.lookupKeyForAsset(&quot;icons/happy.png&quot;);
+AssetFileDescriptor fd = assetManager.openFd(key);</code></pre>
+<h3 id="iOS"><a href="#iOS" class="headerlink" title="iOS"></a>iOS</h3><p>iOS 开发使用 mainbundle 获取 assets。</p>
+<p>使用 FlutterPluginRegistrar 的 lookupKeyForAsset 和 lookupKeyForAsset:fromPackage: 方法获取文件路径 ；FlutterViewController 的 lookupKeyForAsset 和lookupKeyForAsset:fromPackage: 方法获取文件路径 ；</p>
+<p>然后 FlutterPluginRegistrar 用于开发插件，而 FlutterViewController 则用于开发平台 app 的 view 。</p>
+<h5 id="Objective-C-plugin"><a href="#Objective-C-plugin" class="headerlink" title="Objective-C plugin"></a>Objective-C plugin</h5><pre><code class="objective-c">NSString* key = [registrar lookupKeyForAsset:@&quot;icons/happy.png&quot;];
+NSString* path = [[NSBundle mainBundle] pathForResource:key ofType:nil];</code></pre>
+<p>当然 pubspec.yaml 配置都是一致的。</p>
+<h3 id="源码分析"><a href="#源码分析" class="headerlink" title="源码分析"></a>源码分析</h3><p>图片加载方式中有四种方式，接下来我们一起看看 framework 层加载图片是如何实现的。我们就以 Image.network 为例，跟进一下相关源码实现。</p>
+<p>Image.network 的方法如下：</p>
+<pre><code class="dart">Image.network(
+    String src, {
+    Key key,
+    double scale = 1.0,
+    this.frameBuilder,
+    this.loadingBuilder,
+    this.semanticLabel,
+    this.excludeFromSemantics = false,
+    this.width,
+    this.height,
+    this.color,
+    this.colorBlendMode,
+    this.fit,
+    this.alignment = Alignment.center,
+    this.repeat = ImageRepeat.noRepeat,
+    this.centerSlice,
+    this.matchTextDirection = false,
+    this.gaplessPlayback = false,
+    this.filterQuality = FilterQuality.low,
+    Map&lt;String, String&gt; headers,
+  }) : image = NetworkImage(src, scale: scale, headers: headers),
+       assert(alignment != null),
+       assert(repeat != null),
+       assert(matchTextDirection != null),
+       super(key: key);</code></pre>
+<p>这方法的作用就是创建一个 用于显示从网络得到的 ImageStream 的 image 小部件，加载网络图片的 image 是由 NetworkImage 创建出来的，其中参数 src, scale, headers 是不能为空的，其他的参数可以不做要求。NetworkImage 又是继承自 ImageProvider，所以 image 就是 ImageProvider 。ImageProvider 是个抽象类，它的实现类包括：NetworkImage、FileImage、ExactAssetImage、AssetImage、MemoryImage、AssetBundleImageProvider。</p>
+<p><img src="https://p3.ssl.qhimg.com/t018f11f7b2fe8e7b04.png" srcset="/img/loading.gif" alt="image-20190926221816329"></p>
+<p>Image 源码部分如下：</p>
+<pre><code class="dart">class Image extends StatefulWidget {
+/// 用于显示的 image
+  final ImageProvider image;
+
+  ..........
+
+  @override
+  _ImageState createState() =&gt; _ImageState();
+}</code></pre>
+<p>_ImageState 类</p>
+<pre><code class="dart">class _ImageState extends State&lt;Image&gt; with WidgetsBindingObserver {
+  ImageStream _imageStream;
+  ImageInfo _imageInfo;
+
+  .......
+
+@override
+void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+}
+
+@override
+void didChangeDependencies() {
+    _updateInvertColors();
+    _resolveImage();//解析图片从这里开始
+    //设置和移除监听图片变化的回调
+    if (TickerMode.of(context))
+      _listenToStream();
+    else
+      _stopListeningToStream();
+    super.didChangeDependencies();
+}
+
+void _resolveImage() {
+    //根据 ImageConfiguration 调用 ImageProvider 的 resolve 函数获得 ImageStream 对象
+    final ImageStream newStream = widget.image.resolve(createLocalImageConfiguration(
+        context,
+        size: widget.width != null &amp;&amp; widget.height != null ? Size(widget.width, widget.height) : null,
+      ));
+    _updateSourceStream(newStream);
+}
+  ......
+}</code></pre>
+<p>它的生命周期方法方法包括<code>initState()</code>、<code>didChangeDependencies()</code>、<code>build()</code>、<code>deactivate()</code>、<code>dispose()</code>、<code>didUpdateWidget()</code> 等等。当它插入到渲染树时，先调用<code>initState()</code>函数，再调用 <code>didChangeDependencies()</code>。代码中可以看到调用了方法 _resolveImage()，这个方法中创建了 ImageStream 的新对象 newStream 。widget.image 就是 ImageProvider，调用resolve方法，代码如下：</p>
+<pre><code class="dart">ImageStream resolve(ImageConfiguration configuration) {
+  final ImageStream stream = ImageStream();
+  T obtainedKey;
+  bool didError = false;
+  Future&lt;void&gt; handleError(dynamic exception, StackTrace stack) async {
+    if (didError) {
+      return;
+    }
+    didError = true;
+    await null; // 等待事件轮询，以防侦听器被添加到图像流中。
+
+    final _ErrorImageCompleter imageCompleter = _ErrorImageCompleter();
+    stream.setCompleter(imageCompleter);
+    ......
+  }
+
+  ......
+
+      Future&lt;T&gt; key;
+      try {
+        key = obtainKey(configuration);
+      } catch (error, stackTrace) {
+        return;
+      }
+      key.then&lt;void&gt;((T key) {
+        obtainedKey = key;
+        final ImageStreamCompleter completer = 
+        PaintingBinding.instance.imageCache.putIfAbsent(key, () =&gt; load(key), onError: handleError);
+        if (completer != null) {
+          stream.setCompleter(completer);
+        }
+      }).catchError(handleError);
+
+return stream;</code></pre>
+<p>ImageStreamCompleter 用于管理 dart:ui 加载的类的基类。ImageStreams 的对象很少直接构造，而是由 ImageStreamCompleter 自动配置它。ImageStream 中的图片管理者 ImageStreamCompleter 通过方法创建，imageCache 是 Flutter 框架中实现的用于图片缓存的单例，它这 Dart 虚拟机加载时就已经创建。imageCache 最多可缓存 1000 张图像和 100MB 内存空间。可以使用 [maximumSize] 和 [maximumSizeBytes]调整最大大小。</p>
+<pre><code class="dart">PaintingBinding.instance.imageCache.putIfAbsent(key, () =&gt; load(key), onError: handleError);</code></pre>
+<p>根据源码可以看到两个关键方法 ：putIfAbsent 和 load。</p>
+<h5 id="putIfAbsent"><a href="#putIfAbsent" class="headerlink" title="putIfAbsent"></a>putIfAbsent</h5><pre><code class="dart">ImageStreamCompleter putIfAbsent(Object key, ImageStreamCompleter loader(), {ImageErrorListener onError }) {
+    ImageStreamCompleter result = _pendingImages[key]?.completer;
+    // 因为图像还没有加载，不需要做任何事情。
+    if (result != null)
+      return result;
+    // 从缓存列表中根据Key删除对应的 imageprovider，便于将它移动到下面最近使用位置。
+    final _CachedImage image = _cache.remove(key);
+    if (image != null) {
+      _cache[key] = image;
+      return image.completer;
+    }
+    try {
+      result = loader();
+    } catch (error, stackTrace) {
+      ......
+    }
+    void listener(ImageInfo info, bool syncCall) {
+      // 无法加载的图像不会占用缓存大小。
+      final int imageSize = info?.image == null ? 0 : info.image.height * info.image.width * 4;
+      final _CachedImage image = _CachedImage(result, imageSize);
+      // 如果图像大于最大缓存大小，且缓存大小不为零，则将缓存大小增加到图像大小加上 1000。
+      // 思考点：一直这么加什么时候引起崩溃？
+      if (maximumSizeBytes &gt; 0 &amp;&amp; imageSize &gt; maximumSizeBytes) {
+        _maximumSizeBytes = imageSize + 1000;
+      }
+      _currentSizeBytes += imageSize;
+      final _PendingImage pendingImage = _pendingImages.remove(key);
+      if (pendingImage != null) {
+        pendingImage.removeListener();
+      }
+      _cache[key] = image;
+      _checkCacheSize();
+    }
+    if (maximumSize &gt; 0 &amp;&amp; maximumSizeBytes &gt; 0) {
+      final ImageStreamListener streamListener = ImageStreamListener(listener);
+      _pendingImages[key] = _PendingImage(result, streamListener);
+      // 移除 [_PendingImage.removeListener] 上的监听
+      result.addListener(streamListener);
+    }
+    return result;
+  }</code></pre>
+<h5 id="load"><a href="#load" class="headerlink" title="load"></a>load</h5><pre><code class="dart">/// 拉取网络图片的 image_provider.NetworkImage 具体实现.
+class NetworkImage extends image_provider.ImageProvider&lt;image_provider.NetworkImage&gt; implements image_provider.NetworkImage {
+ ......................
+  @override
+  ImageStreamCompleter load(image_provider.NetworkImage key) {
+
+    final StreamController&lt;ImageChunkEvent&gt; chunkEvents = StreamController&lt;ImageChunkEvent&gt;();
+
+    return MultiFrameImageStreamCompleter(
+
+      codec: _loadAsync(key, chunkEvents),
+
+      chunkEvents: chunkEvents.stream,
+      scale: key.scale,
+      informationCollector: () {
+        return &lt;DiagnosticsNode&gt;[
+          DiagnosticsProperty&lt;image_provider.ImageProvider&gt;(&#39;Image provider&#39;, this),
+          DiagnosticsProperty&lt;image_provider.NetworkImage&gt;(&#39;Image key&#39;, key),
+        ];
+      },
+    );
+  }</code></pre>
+<h5 id="loadAsync"><a href="#loadAsync" class="headerlink" title="loadAsync"></a>loadAsync</h5><pre><code class="dart">Future&lt;ui.Codec&gt; _loadAsync(
+    NetworkImage key,
+    StreamController&lt;ImageChunkEvent&gt; chunkEvents,
+  ) async {
+    try {
+      final Uri resolved = Uri.base.resolve(key.url);
+      final HttpClientRequest request = await _httpClient.getUrl(resolved);
+      headers?.forEach((String name, String value) {
+        request.headers.add(name, value);
+      });
+      final HttpClientResponse response = await request.close();
+      if (response.statusCode != HttpStatus.ok)
+        throw image_provider.NetworkImageLoadException(statusCode: response.statusCode, uri: resolved);
+        //将网络返回的 response 信息，转换成内存中的 Uint8List bytes。这里面有解压 gzip 的逻辑。
+      final Uint8List bytes = await consolidateHttpClientResponseBytes(
+        response,
+        onBytesReceived: (int cumulative, int total) {
+          chunkEvents.add(ImageChunkEvent(
+            cumulativeBytesLoaded: cumulative,
+            expectedTotalBytes: total,
+          ));
+        },
+      );
+      if (bytes.lengthInBytes == 0)
+        throw Exception(&#39;NetworkImage is an empty file: $resolved&#39;);
+
+      return PaintingBinding.instance.instantiateImageCodec(bytes);
+    } finally {
+      chunkEvents.close();
+    }
+  }</code></pre>
+<p>将网络返回的response信息，转换成内存中的 Uint8List bytes，最终返回一个实例化图像编解码器对象Codec，此处 Codec 可以移步到 painting.dart 文件的 _instantiateImageCodec 看出来它是调用了native方法去处理了。</p>
+<h5 id="MultiFrameImageStreamCompleter"><a href="#MultiFrameImageStreamCompleter" class="headerlink" title="MultiFrameImageStreamCompleter"></a>MultiFrameImageStreamCompleter</h5><p>这个对象就是 ImageStreamCompleter 的具体实现，见名知意，多帧图片流管理，作用管理图像帧的解码和调度。</p>
+<p>这个类处理两种类型的帧:</p>
+<ul>
+<li><p>图像帧 ：动画图像的图像帧。</p>
+</li>
+<li><p>app 帧 ：Flutter 引擎绘制到屏幕的帧，显示到应用程序 GUI。</p>
+</li>
+</ul>
+<p>这就不贴所有代码了，在 image_stream.dart 文件中 可见 class MultiFrameImageStreamCompleter。</p>
+<pre><code class="dart">MultiFrameImageStreamCompleter({
+    @required Future&lt;ui.Codec&gt; codec,
+    @required double scale,
+    Stream&lt;ImageChunkEvent&gt; chunkEvents,
+    InformationCollector informationCollector,
+  }) : assert(codec != null),
+       _informationCollector = informationCollector,
+       _scale = scale {
+    codec.then&lt;void&gt;(_handleCodecReady, onError: (dynamic error, StackTrace stack) {
+     ..........
+    });</code></pre>
+<h5 id="handleCodecReady"><a href="#handleCodecReady" class="headerlink" title="_handleCodecReady"></a>_handleCodecReady</h5><p>这里 codec 异步回调次方法</p>
+<pre><code class="dart">void _handleCodecReady(ui.Codec codec) {
+    _codec = codec;
+    if (hasListeners) {
+      _decodeNextFrameAndSchedule();
+    }
+  }</code></pre>
+<h5 id="decodeNextFrameAndSchedule"><a href="#decodeNextFrameAndSchedule" class="headerlink" title="_decodeNextFrameAndSchedule"></a>_decodeNextFrameAndSchedule</h5><p>codec 解码获取到图片的帧数，判断图片是只有一帧的话，就是png、jpg这样静态图片。</p>
+<pre><code class="dart">Future&lt;void&gt; _decodeNextFrameAndSchedule() async {
+    try {
+      _nextFrame = await _codec.getNextFrame();
+    } catch (exception, stack) {
+      ........
+      return;
+    }
+    if (_codec.frameCount == 1) { // 此处判断图片是只有一帧的逻辑.
+      _emitFrame(ImageInfo(image: _nextFrame.image, scale: _scale));
+      return;
+    }
+    _scheduleAppFrame();
+  }
+
+  void _scheduleAppFrame() {
+    if (_frameCallbackScheduled) {
+      return;
+    }
+    _frameCallbackScheduled = true;
+    SchedulerBinding.instance.scheduleFrameCallback(_handleAppFrame);
+  }</code></pre>
+<pre><code class="dart">_emitFrame(ImageInfo(image: _nextFrame.image, scale: _scale));
+
+void _emitFrame(ImageInfo imageInfo) {
+    setImage(imageInfo);
+    _framesEmitted += 1;
+  }
+
+
+  @protected
+  void setImage(ImageInfo image) {
+    _currentImage = image;
+    if (_listeners.isEmpty)
+      return;
+    // 复制一份以允许并发修改。
+final List&lt;ImageStreamListener&gt; localListeners = List&lt;ImageStreamListener&gt;.from(_listeners);
+
+    for (ImageStreamListener listener in localListeners) {
+      try {
+        listener.onImage(image, false);
+      } catch (exception, stack) {
+        ..........
+      }
+    }
+  }</code></pre>
+<p>setImage 核心逻辑就是通知所有注册上的监听，表示图片发生了变化可以更新啦。此时我们回到 开始提到的_ImageState 类中 didChangeDependencies 方法调用的 _listenToStream 方法，最终调用方法 _handleImageFrame ，改变 图片信息 _imageInfo 和 图片帧数变化 _frameNumber ，最终执行 setState(() {}) 来刷新了 UI。</p>
+<pre><code class="dart">void _listenToStream() {
+    if (_isListeningToStream)
+      return;
+    _imageStream.addListener(_getListener());
+    _isListeningToStream = true;
+  }
+
+ImageStreamListener _getListener([ImageLoadingBuilder loadingBuilder]) {
+    loadingBuilder ??= widget.loadingBuilder;
+    return ImageStreamListener(
+      _handleImageFrame,
+      onChunk: loadingBuilder == null ? null : _handleImageChunk,
+    );
+  }
+
+  void _handleImageFrame(ImageInfo imageInfo, bool synchronousCall) {
+    setState(() {
+      _imageInfo = imageInfo;
+      _loadingProgress = null;
+      _frameNumber = _frameNumber == null ? 0 : _frameNumber + 1;
+      _wasSynchronouslyLoaded |= synchronousCall;
+    });
+  }</code></pre>
+<p>这样就结束了一个网络图片的加载过程。</p>
+<p>此处应该有流程图就更加简洁明了的表达啦。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>图片加载显示的方式 framework 提供了多种方式，我们就图片网络加载进行了分析。从源码角度对网络图片加载过程有了大致的了解。发现的可以优化点，这里先提出来优化的点：</p>
+<p>1、看到网络图片只是在 ImageCache 管理类中进行了内存缓存，当应用进程重新启动后还是要重新下载图片，此处是可以优化的，比如保存到本地磁盘外存。</p>
+<p>2、拿到图片加载到内存里面的时候，是否有对图片进行压缩处理，这种处理最好既适应当前平台又不过分地改变图片的清晰度。</p>
+<p>期待下一篇的迭代优化点。</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Flutter/">Flutter</a>
+                    
+                  </span>
+                
+              </p>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="https://octodex.github.com/images/jetpacktocat.png" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Flutter 图片加载&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
