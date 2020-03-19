@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="大道至简">
+  <meta name="author" content="刘圣文">
+  <meta name="keywords" content="Android;Flutter">
+  <title>Flutter Engine 编译及阅读 - 大道至简</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大道至简</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">关于</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/links/">友链</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  星期四, 一月 23日 2020, 10:14 晚上
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    683 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta">
+                      <i class="far fa-clock"></i>
+                      3 分钟
+                  </span>
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <div class="markdown-body">
+              <p>本文处理方式以官方配置为主，会更多的注重一些细节。读者可以直接参考官方文档进行编译。</p>
+<blockquote>
+<p>Setting up the Engine development environment<br><a href="https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment"><a href="https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment">https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment</a></a></p>
+</blockquote>
+<h2 id="编译-Flutter-Engine"><a href="#编译-Flutter-Engine" class="headerlink" title="编译 Flutter Engine"></a>编译 Flutter Engine</h2><p>1、准备工作</p>
+<p>安装 <a href="http://commondatastorage.googleapis.com/chrome-infra-docs/flat/depot_tools/docs/html/depot_tools_tutorial.html#_setting_up">depot_tools</a> ：</p>
+<pre><code class="bash">$ git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git</code></pre>
+<p>配置环境变量：建议在 ~/.bash_profile  文件中添加</p>
+<pre><code class="bash">export PATH=/flutter/depot_tools/:$PATH</code></pre>
+<p>然后执行 </p>
+<pre><code class="bash">$ source ~/.bash_profile </code></pre>
+<p>当然，你也可以配置临时环境变量</p>
+<pre><code class="bash">$ export PATH=$PATH:/Users/***/flutter/depot_tools/</code></pre>
+<p>2、将 engine 项目 fork 到自己的<a href="https://github.com/donald99/engine">github</a></p>
+<p>3、创建项目目录</p>
+<p>你可以创建一个目录，名称推荐为 engine，后面的步骤会自动执行 clone ，你也可以先将工程 clone 到本地。</p>
+<pre><code class="bash">$ mkdir engine
+// 或者将项目 clone 到本地
+$ git clone https://github.com/donald99/engine</code></pre>
+<p>4、创建 .gclient 文件</p>
+<p>进入engine 目录，创建 .gclient 文件</p>
+<pre><code class="bash">$ cd engine
+$ vim .gclient</code></pre>
+<p>写入如下内容：</p>
+<pre><code class="bash">solutions = [
+  {
+    &quot;managed&quot;: False,
+    &quot;name&quot;: &quot;src/flutter&quot;,
+    &quot;url&quot;: &quot;git@github.com:&lt;your_name_here&gt;/engine.git&quot;,
+    &quot;custom_deps&quot;: {},
+    &quot;deps_file&quot;: &quot;DEPS&quot;,
+    &quot;safesync_url&quot;: &quot;&quot;,
+  },
+]</code></pre>
+<p>将 <your_name_here> 换成你的 GitHub 名字，例如我的是：</p>
+<pre><code class="bash">solutions = [
+  {
+    &quot;managed&quot;: False,
+    &quot;name&quot;: &quot;src/flutter&quot;,
+    &quot;url&quot;: &quot;git@github.com:donald99/engine.git&quot;,
+    &quot;custom_deps&quot;: {},
+    &quot;deps_file&quot;: &quot;DEPS&quot;,
+    &quot;safesync_url&quot;: &quot;&quot;,
+  },
+]</code></pre>
+<p>:wq 保存退出。</p>
+<p>5、执行 gclient sync 命令</p>
+<p>这里的执行需要梯子，速度根据你的网络状况，同步下来的文件大小大概有 10G</p>
+<pre><code class="bash">$ cd /flutter/engine
+$ gclient sync</code></pre>
+<p>需要注意的是，这里需要等待文件自动完成，并且尽量不要打断该命令，显示 100% 后仍有很多操作。</p>
+<p>6、重新 fetch flutter/engine 仓库</p>
+<pre><code class="bash">$ cd src/flutter
+
+$ git remote add upstream git@github.com:flutter/engine.git</code></pre>
+<p>7、安装辅助工具</p>
+<p>安装 JDK 1.8 以上</p>
+<p>ant 安装</p>
+<pre><code class="bash">$ brew install ant</code></pre>
+<p>8、编译 android 相关</p>
+<p>确保本地 flutter/engine 仓库是最新的</p>
+<pre><code class="bash">$ git pull upstream master
+$ cd /flutter/engine
+$ gclient sync</code></pre>
+<p>执行以下命令编译</p>
+<pre><code class="bash">$ ./flutter/tools/gn --unoptimized
+$ ./flutter/tools/gn --android --unoptimized
+$ ninja -C out/android_debug_unopt &amp;&amp; ninja -C out/host_debug_unopt</code></pre>
+<p>整个过程比较漫长，耐心等待。</p>
+<p>9、编译 iOS 相关</p>
+<p>确保本地 flutter/engine 仓库是最新的</p>
+<pre><code class="bash">$ git pull upstream master
+$ cd /flutter/engine
+$ gclient sync</code></pre>
+<p>执行以下命令编译</p>
+<pre><code class="bash">$ ./flutter/tools/gn --ios --unoptimized
+$ ./flutter/tools/gn --unoptimized
+$ ninja -C out/ios_debug_unopt &amp;&amp; ninja -C out/host_debug_unopt</code></pre>
+<p>这样 flutter engine 的编译工作就基本完成了。生成的一些编译文件目录为 src/out 。</p>
+<pre><code class="bash"></code></pre>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>flutter engine 就像一个小型的操作系统，若研究透彻，就可以纵横天地，心随我意。</p>
+<p>参考资料：<br></p>
+<p><a href="https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md">https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md</a></p>
+<p>Setting up your engine development environment<br><a href="https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment">https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment</a><br>Compiling the engine<br><a href="https://github.com/flutter/flutter/wiki/Compiling-the-engine">https://github.com/flutter/flutter/wiki/Setting-up-the-Engine-development-environment</a><br>Building cquery<br><a href="https://github.com/cquery-project/cquery/wiki/Building-cquery">https://github.com/cquery-project/cquery/wiki/Building-cquery</a><br>Contributing to Flutter<br><a href="https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md">https://github.com/flutter/flutter/blob/master/CONTRIBUTING.md</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Flutter/">Flutter</a>
+                    
+                  </span>
+                
+              </p>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="/img/m_wx.jpeg" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Flutter Engine 编译及阅读&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

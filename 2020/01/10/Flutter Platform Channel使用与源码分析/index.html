@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="大道至简">
+  <meta name="author" content="刘圣文">
+  <meta name="keywords" content="Android;Flutter">
+  <title>Flutter Platform Channel 使用与源码分析 - 大道至简</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大道至简</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">关于</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/links/">友链</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('/img/default.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  星期五, 一月 10日 2020, 11:48 中午
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    2.6k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta">
+                      <i class="far fa-clock"></i>
+                      13 分钟
+                  </span>
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <div class="markdown-body">
+              <h3 id="1-PlatformChannel"><a href="#1-PlatformChannel" class="headerlink" title="1. PlatformChannel"></a>1. PlatformChannel</h3><p>为什么要有 PlatformChannel ？</p>
+<p>先来思考以下两个问题：</p>
+<p>1、如果 Flutter 要获取设备的电量信息怎么办？</br><br>2、如果 Flutter 要实时监控网络状态怎么办？</br></p>
+<p>官方 Flutter 给出的特点描述：</p>
+<blockquote>
+<p>Flutter is Google’s UI toolkit for building beautiful, natively compiled applications for mobile, web, and desktop from a single codebase.</p>
+</blockquote>
+<p>1、Flutter 是一个跨平台的 UI 库，专注于构建高效的 UI。</br><br>2、多平台的支持，每个平台的都有自己的平台特性，Flutter 目前支持的平台有：Android、Darwin、Embedder、Fuchsia、Linux、Window。</br></p>
+<p>既然是跨平台的那 Flutter 如何进行平台间通信，此时就需要有一个通道，即今天的主角 PlatformChannel。</p>
+<h3 id="2-架构图"><a href="#2-架构图" class="headerlink" title="2. 架构图"></a>2. 架构图</h3><img src="https://flutter.dev/images/PlatformChannels.png" srcset="/img/loading.gif" width="70%" height="70%" /> 
+
+<h3 id="3-PlatformChannel-类型"><a href="#3-PlatformChannel-类型" class="headerlink" title="3. PlatformChannel 类型"></a>3. PlatformChannel 类型</h3><ul>
+<li><p>BasicMessageChannel：用于数据传递。</p>
+<p>platform 和 dart 可互相传递数据（asynchronous message passing）</p>
+</li>
+<li><p>MethodChannel：用于传递方法调用。</p>
+<p>platform 和 dart 可互相调用方法（asynchronous method calls）</p>
+</li>
+<li><p>EventChannel：用于数据流通信。</p>
+<p>建立连接之后，platform 发送消息，dart 接收消息（event streams）</p>
+</li>
+</ul>
+<p>三种类型的 channel 都定义在 <code>platform_channel.dart</code> 中，从源码中可以看到三种 channel 都用到了以下三个属性。</p>
+<ul>
+<li><code>name</code>：String 类型，表示 channel 的名字，全局唯一（The logical channel on which communication happens）</li>
+<li><code>codec</code>：MessageCodec<T> 类型，消息的编码解码器（The message codec used by this channel）</li>
+<li><code>binaryMessenger</code>：BinaryMessenger类型，用于发送数据（The messenger used by this channel to send platform messages）</li>
+</ul>
+<h4 id="3-1-channel-name"><a href="#3-1-channel-name" class="headerlink" title="3.1 channel name"></a>3.1 channel name</h4><p>channel 的名字，每个 Flutter 应用可能有多个 channel，但是每个 channel 必须有一个唯一的名字。</p>
+<h4 id="3-2-codec"><a href="#3-2-codec" class="headerlink" title="3.2 codec"></a>3.2 codec</h4><p>codec 用来对数据编码解码，以便两端可以正确读取数据。<br><img src="http://p0.qhimg.com/t01d0c790e129c2c8f9.png" srcset="/img/loading.gif"/> </p>
+<h4 id="3-3-binaryMessenger"><a href="#3-3-binaryMessenger" class="headerlink" title="3.3 binaryMessenger"></a>3.3 binaryMessenger</h4><p>用于发送数据</p>
+<h3 id="4-PlatformChannel-实战"><a href="#4-PlatformChannel-实战" class="headerlink" title="4. PlatformChannel 实战"></a>4. PlatformChannel 实战</h3><h4 id="4-1-MethodChannel"><a href="#4-1-MethodChannel" class="headerlink" title="4.1 MethodChannel"></a>4.1 MethodChannel</h4><ul>
+<li>Dart 调用 Android 方法</li>
+</ul>
+<p>method_channel_page.dart 主要代码</p>
+<pre><code class="dart">第一步
+static const methodChannel = MethodChannel(&quot;method_channel_sample&quot;);
+
+第二步  
+Future&lt;dynamic&gt; getUserInfo(String method, {String userName}) async {
+  return await methodChannel.invokeMethod(method, userName);
+}
+
+第三步    
+MaterialButton(
+  color: Colors.blue,
+  textColor: Colors.white,
+  child: new Text(&#39;获取用户信息&#39;),
+  onPressed: () {
+    getUserInfo(&quot;getInfo&quot;, userName: &quot;qihoo&quot;)
+      ..then((result) {
+        setState(() {
+          messageFromNative = result;
+        });
+      });
+  },
+),</code></pre>
+<p>MainActivity.java 主要代码</p>
+<pre><code class="java">private void addMethodChannel() {
+    mMethodChannel = new MethodChannel(getFlutterView(), &quot;method_channel_sample&quot;);
+    mMethodChannel.setMethodCallHandler((methodCall, result) -&gt; {
+        String method = methodCall.method;
+        if (&quot;getInfo&quot;.equals(method)) {
+            String userName = (String) methodCall.arguments;
+            if (userName.equals(&quot;qihoo&quot;)) {
+                String user = &quot;name:qihoo, age:1&quot;;
+                result.success(user);
+            } else {
+                result.success(&quot;user not found&quot;);
+                invokeSayHelloMethod();
+            }
+        }
+    });
+}</code></pre>
+<p>可以看出首先在 Dart 端定义 MethodChannel 名字为 <code>method_channel_sample</code>。然后定义<code>getUserInfo</code>方法，传入要调用的方法名和参数。最后点击按钮执行方法，获取用户信息。</br><br>在 Android 端定一个 MethodChannel 名字和 Dart 端保持一致。设置 MethodCallHandler。当调用的是<code>getInfo</code>方法时，根据参数返回信息。</p>
+<ul>
+<li>Android 调用 Dart 方法</li>
+</ul>
+<p>MainActivity.java 主要代码</p>
+<pre><code class="java">private void invokeSayHelloMethod() {
+    mMethodChannel.invokeMethod(&quot;sayHello&quot;, &quot;&quot;, new MethodChannel.Result() {
+        @Override
+        public void success(Object o) {
+            Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void error(String s, String s1, Object o) {
+        }
+
+        @Override
+        public void notImplemented() {
+        }
+    });
+}</code></pre>
+<p>method_channel_page.dart 主要代码</p>
+<pre><code class="dart">Future&lt;dynamic&gt; addHandler(MethodCall call) async {
+  switch (call.method) {
+    case &quot;sayHello&quot;:
+      return &quot;Hello from Flutter&quot;;
+      break;
+  }
+}
+
+@override
+void initState() {
+  super.initState();
+
+  methodChannel.setMethodCallHandler(addHandler);
+}</code></pre>
+<p>在 Dart 端设置 MethodCallHandler 然后在 Android 端调用即可。</p>
+<h4 id="4-2-BasicMessageChannel"><a href="#4-2-BasicMessageChannel" class="headerlink" title="4.2 BasicMessageChannel"></a>4.2 BasicMessageChannel</h4><ul>
+<li>Dart 向 Android 发送消息</li>
+</ul>
+<p>basic_message_channel_page.dart 主要代码</p>
+<pre><code class="dart">第一步
+static const basicMessageChannel = BasicMessageChannel(
+      &quot;basic_message_channel_sample&quot;, StandardMessageCodec());
+
+第二步
+Future&lt;dynamic&gt; sayHelloToNative(String message) async {
+  String reply = await basicMessageChannel.send(message);
+
+  setState(() {
+    msgReplyFromNative = reply;
+  });
+
+  return reply;
+}
+
+第三步
+MaterialButton(
+  color: Colors.blue,
+  textColor: Colors.white,
+  child: new Text(&#39;say hello to native&#39;),
+  onPressed: () {
+    sayHelloToNative(&quot;hello&quot;);
+  },
+),
+</code></pre>
+<p>MainActivity.java 主要代码</p>
+<pre><code class="java">private void addBasicMessageChannel() {
+    mBasicMessageChannel = new BasicMessageChannel&lt;&gt;(getFlutterView(), &quot;basic_message_channel_sample&quot;, StandardMessageCodec.INSTANCE);
+    mBasicMessageChannel.setMessageHandler((object, reply) -&gt; {
+        reply.reply(&quot;receive &quot; + object.toString() + &quot; from flutter&quot;);
+        mBasicMessageChannel.send(&quot;native say hello to flutter&quot;);
+    });
+}
+</code></pre>
+<p>可以看出Dart 向 Android 发送消息分为三步。首先在 Dart 端定义 BasicMessageChannel 名字为 <code>basic_message_channel_sample</code>。然后定义发送消息的方法<code>sayHelloToNative</code>。最后点击按钮向 Android 端发送消息。</br><br>在 Android 端定一个 BasicMessageChannel 名字和 Dart 端保持一致。设置 MethodCallHandler。当收到消息时发一个回复。</p>
+<ul>
+<li>Android 向 Dart 发送消息</li>
+</ul>
+<p>MainActivity.java 主要代码</p>
+<pre><code class="java">mBasicMessageChannel.send(&quot;native say hello to flutter&quot;);</code></pre>
+<p>basic_message_channel_page.dart 主要代码</p>
+<pre><code class="dart">Future&lt;dynamic&gt; addHandler(Object result) async {
+  setState(() {
+    msgReceiveFromNative = result.toString();
+  });
+}
+
+void addMessageListener() {
+  basicMessageChannel.setMessageHandler(addHandler);
+}
+
+@override
+void initState() {
+  super.initState();
+  addMessageListener();
+}
+</code></pre>
+<p>从代码可以看出，在 Dart 端设置 MessageHandler 然后在 Android 端直接发送消息即可。</p>
+<h4 id="4-3-EventChannel"><a href="#4-3-EventChannel" class="headerlink" title="4.3 EventChannel"></a>4.3 EventChannel</h4><p>event_channel_page.dart 主要代码</p>
+<pre><code class="dart">第一步
+static const eventChannel = EventChannel(&quot;event_channel_sample&quot;);
+
+void _onEvent(Object event) {
+  setState(() {
+    if (_streamSubscription != null) {
+      eventMessage = event.toString();
+    }
+  });
+}
+
+void _onError(Object error) {
+  setState(() {
+    if (_streamSubscription != null) {
+      eventMessage = &quot;error&quot;;
+    }
+  });
+}
+
+@override
+void initState() {
+  super.initState();
+  eventMessage = &quot;&quot;;
+  第二步
+  _streamSubscription = eventChannel
+      .receiveBroadcastStream()
+      .listen(_onEvent, onError: _onError);
+}
+</code></pre>
+<p>MainActivity.java 主要代码</p>
+<pre><code class="java">private void addEventChannel() {
+    mEventChannel = new EventChannel(getFlutterView(), &quot;event_channel_sample&quot;);
+    mEventChannel.setStreamHandler(new EventChannel.StreamHandler() {
+        @Override
+        public void onListen(Object o, EventChannel.EventSink eventSink) {
+            task = new TimerTask() {
+                @Override
+                public void run() {
+                    runOnUiThread(() -&gt; eventSink.success(&quot;i miss you &quot; + System.currentTimeMillis()));
+
+                }
+            };
+            timer = new Timer();
+            timer.schedule(task, 2000, 3000);
+        }
+
+        @Override
+        public void onCancel(Object o) {
+            task.cancel();
+            timer.cancel();
+            task = null;
+            timer = null;
+        }
+    });
+}</code></pre>
+<p>Dart 接受 Android stream event。首先在 Dart 端定义 EventChannel 名字为 <code>event_channel_sample</code>。然后设置<code>receiveBroadcastStream</code>监听，当 Android 端有消息发过来会回调<code>_onEvent</code>方法。</br><br>在 Android 端启动一个定时器，每隔3s向 Dart 端发送一次消息。</p>
+<h4 id="4-4-总结"><a href="#4-4-总结" class="headerlink" title="4.4 总结"></a>4.4 总结</h4><p>如下图，在 Dart 与 Platform 通信过程中，通过 channel name 找到对方，然后把消息通过 codec 进行编解码，最后通过 binaryMessenger 进行发送。<br><img src="http://p0.qhimg.com/t01d23cfd7ce4e80077.png" srcset="/img/loading.gif"/> </p>
+<h3 id="5-源码分析-以-MethodChannel-为例"><a href="#5-源码分析-以-MethodChannel-为例" class="headerlink" title="5. 源码分析-以 MethodChannel 为例"></a>5. 源码分析-以 MethodChannel 为例</h3><h5 id="5-1-调用-MethodChannel-的-invokeMethod-方法，会调用到-binaryMessenger-send-方法。即-binaryMessenger-send-传入-channel-name-和编码好的参数。"><a href="#5-1-调用-MethodChannel-的-invokeMethod-方法，会调用到-binaryMessenger-send-方法。即-binaryMessenger-send-传入-channel-name-和编码好的参数。" class="headerlink" title="5.1 调用 MethodChannel 的 invokeMethod 方法，会调用到 binaryMessenger.send 方法。即 binaryMessenger.send 传入 channel name 和编码好的参数。"></a>5.1 调用 MethodChannel 的 invokeMethod 方法，会调用到 binaryMessenger.send 方法。即 binaryMessenger.send 传入 channel name 和编码好的参数。</h5><pre><code class="dart">  @optionalTypeArgs
+  Future&lt;T&gt; invokeMethod&lt;T&gt;(String method, [ dynamic arguments ]) async {
+    assert(method != null);
+    final ByteData result = await binaryMessenger.send(
+      name,
+      codec.encodeMethodCall(MethodCall(method, arguments)),
+    );
+    if (result == null) {
+      throw MissingPluginException(&#39;No implementation found for method $method on channel $name&#39;);
+    }
+    final T typedResult = codec.decodeEnvelope(result);
+    return typedResult;
+  }</code></pre>
+<h5 id="5-2-binary-messenger-dart-的-send-方法会调用当前对象的-sendPlatformMessage-方法，最终会调用-window-sendPlatformMessage-方法。"><a href="#5-2-binary-messenger-dart-的-send-方法会调用当前对象的-sendPlatformMessage-方法，最终会调用-window-sendPlatformMessage-方法。" class="headerlink" title="5.2 binary_messenger.dart 的 send 方法会调用当前对象的 _sendPlatformMessage 方法，最终会调用 window.sendPlatformMessage 方法。"></a>5.2 binary_messenger.dart 的 send 方法会调用当前对象的 _sendPlatformMessage 方法，最终会调用 window.sendPlatformMessage 方法。</h5><pre><code class="dart">  @override
+  Future&lt;ByteData&gt; send(String channel, ByteData message) {
+    final MessageHandler handler = _mockHandlers[channel];
+    if (handler != null)
+      return handler(message);
+    return _sendPlatformMessage(channel, message);
+  }</code></pre>
+<pre><code class="dart">  Future&lt;ByteData&gt; _sendPlatformMessage(String channel, ByteData message) {
+    final Completer&lt;ByteData&gt; completer = Completer&lt;ByteData&gt;();
+    // ui.window is accessed directly instead of using ServicesBinding.instance.window
+    // because this method might be invoked before any binding is initialized.
+    // This issue was reported in #27541. It is not ideal to statically access
+    // ui.window because the Window may be dependency injected elsewhere with
+    // a different instance. However, static access at this location seems to be
+    // the least bad option.
+    ui.window.sendPlatformMessage(channel, message, (ByteData reply) {
+      try {
+        completer.complete(reply);
+      } catch (exception, stack) {
+        FlutterError.reportError(FlutterErrorDetails(
+          exception: exception,
+          stack: stack,
+          library: &#39;services library&#39;,
+          context: ErrorDescription(&#39;during a platform message response callback&#39;),
+        ));
+      }
+    });
+    return completer.future;
+  }</code></pre>
+<h5 id="5-3-在-window-dart-中又调用了-native-方法-sendPlatformMessage。"><a href="#5-3-在-window-dart-中又调用了-native-方法-sendPlatformMessage。" class="headerlink" title="5.3 在 window.dart 中又调用了 native 方法 _sendPlatformMessage。"></a>5.3 在 window.dart 中又调用了 native 方法 _sendPlatformMessage。</h5><pre><code class="dart">  void sendPlatformMessage(String name,
+                           ByteData data,
+                           PlatformMessageResponseCallback callback) {
+    final String error =
+        _sendPlatformMessage(name, _zonedPlatformMessageResponseCallback(callback), data);
+    if (error != null)
+      throw Exception(error);
+  }</code></pre>
+<pre><code class="dart">  String _sendPlatformMessage(String name,
+                              PlatformMessageResponseCallback callback,
+                              ByteData data) native &#39;Window_sendPlatformMessage&#39;;</code></pre>
+<h5 id="5-4-接下来进入-engine-中的-window-cc，可以看到最终调用的是-dart-state-gt-window-gt-client-gt-HandlePlatformMessage。"><a href="#5-4-接下来进入-engine-中的-window-cc，可以看到最终调用的是-dart-state-gt-window-gt-client-gt-HandlePlatformMessage。" class="headerlink" title="5.4 接下来进入 engine 中的 window.cc，可以看到最终调用的是 dart_state-&gt;window()-&gt;client()-&gt;HandlePlatformMessage。"></a>5.4 接下来进入 engine 中的 window.cc，可以看到最终调用的是 dart_state-&gt;window()-&gt;client()-&gt;HandlePlatformMessage。</h5><pre><code class="c++">void Window::RegisterNatives(tonic::DartLibraryNatives* natives) {
+  natives-&gt;Register({
+      {&quot;Window_defaultRouteName&quot;, DefaultRouteName, 1, true},
+      {&quot;Window_scheduleFrame&quot;, ScheduleFrame, 1, true},
+      {&quot;Window_sendPlatformMessage&quot;, _SendPlatformMessage, 4, true},
+      {&quot;Window_respondToPlatformMessage&quot;, _RespondToPlatformMessage, 3, true},
+      {&quot;Window_render&quot;, Render, 2, true},
+      {&quot;Window_updateSemantics&quot;, UpdateSemantics, 2, true},
+      {&quot;Window_setIsolateDebugName&quot;, SetIsolateDebugName, 2, true},
+      {&quot;Window_reportUnhandledException&quot;, ReportUnhandledException, 2, true},
+      {&quot;Window_setNeedsReportTimings&quot;, SetNeedsReportTimings, 2, true},
+  });
+}</code></pre>
+<pre><code class="c++">void _SendPlatformMessage(Dart_NativeArguments args) {
+  tonic::DartCallStatic(&amp;SendPlatformMessage, args);
+}</code></pre>
+<pre><code class="c++">Dart_Handle SendPlatformMessage(Dart_Handle window,
+                                const std::string&amp; name,
+                                Dart_Handle callback,
+                                Dart_Handle data_handle) {
+  UIDartState* dart_state = UIDartState::Current();
+
+  if (!dart_state-&gt;window()) {
+    return tonic::ToDart(
+        &quot;Platform messages can only be sent from the main isolate&quot;);
+  }
+
+  fml::RefPtr&lt;PlatformMessageResponse&gt; response;
+  if (!Dart_IsNull(callback)) {
+    response = fml::MakeRefCounted&lt;PlatformMessageResponseDart&gt;(
+        tonic::DartPersistentValue(dart_state, callback),
+        dart_state-&gt;GetTaskRunners().GetUITaskRunner());
+  }
+  if (Dart_IsNull(data_handle)) {
+    dart_state-&gt;window()-&gt;client()-&gt;HandlePlatformMessage(
+        fml::MakeRefCounted&lt;PlatformMessage&gt;(name, response));
+  } else {
+    tonic::DartByteData data(data_handle);
+    const uint8_t* buffer = static_cast&lt;const uint8_t*&gt;(data.data());
+    dart_state-&gt;window()-&gt;client()-&gt;HandlePlatformMessage(
+        fml::MakeRefCounted&lt;PlatformMessage&gt;(
+            name, std::vector&lt;uint8_t&gt;(buffer, buffer + data.length_in_bytes()),
+            response));
+  }
+
+  return Dart_Null();
+}</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/master/lib/ui/window/window.cc">window.cc 源码</a></p>
+</blockquote>
+<h5 id="5-5-我们进入-window-h-中找到-client-其实是-WindowClient。"><a href="#5-5-我们进入-window-h-中找到-client-其实是-WindowClient。" class="headerlink" title="5.5 我们进入 window.h 中找到 client 其实是 WindowClient。"></a>5.5 我们进入 window.h 中找到 client 其实是 WindowClient。</h5><pre><code class="c++">  WindowClient* client() const { return client_; }</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/master/lib/ui/window/window.h">window.h 源码</a></p>
+</blockquote>
+<h5 id="5-6-在-runtime-controller-h-中可以看到-RuntimeController-是-WindowClient-的实际实现，调用的是-RuntimeController-的-HandlePlatformMessage-方法。"><a href="#5-6-在-runtime-controller-h-中可以看到-RuntimeController-是-WindowClient-的实际实现，调用的是-RuntimeController-的-HandlePlatformMessage-方法。" class="headerlink" title="5.6 在 runtime_controller.h 中可以看到 RuntimeController 是 WindowClient 的实际实现，调用的是 RuntimeController 的 HandlePlatformMessage 方法。"></a>5.6 在 runtime_controller.h 中可以看到 RuntimeController 是 WindowClient 的实际实现，调用的是 RuntimeController 的 HandlePlatformMessage 方法。</h5><pre><code class="c++">class RuntimeController final : public WindowClient {
+
+...
+  // |WindowClient|
+  void HandlePlatformMessage(fml::RefPtr&lt;PlatformMessage&gt; message) override;
+...
+}</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/78a8ca0f62b04fa49030ecdd2d91726c0639401f/runtime/runtime_controller.h">runtime_controller.h 源码</a></p>
+</blockquote>
+<h5 id="5-7-在-runtime-controller-cc-中，HandlePlatformMessage-调用了-client-的-HandlePlatformMessage-方法，client-实际是代理对象-RuntimeDelegate。"><a href="#5-7-在-runtime-controller-cc-中，HandlePlatformMessage-调用了-client-的-HandlePlatformMessage-方法，client-实际是代理对象-RuntimeDelegate。" class="headerlink" title="5.7 在 runtime_controller.cc 中，HandlePlatformMessage 调用了 client_ 的 HandlePlatformMessage 方法，client_ 实际是代理对象 RuntimeDelegate。"></a>5.7 在 runtime_controller.cc 中，HandlePlatformMessage 调用了 client_ 的 HandlePlatformMessage 方法，client_ 实际是代理对象 RuntimeDelegate。</h5><pre><code class="c++">void RuntimeController::HandlePlatformMessage(
+    fml::RefPtr&lt;PlatformMessage&gt; message) {
+  client_.HandlePlatformMessage(std::move(message));
+}</code></pre>
+<pre><code class="c++">RuntimeDelegate&amp; p_client</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/78a8ca0f62b04fa49030ecdd2d91726c0639401f/runtime/runtime_controller.cc">runtime_controller.cc 源码</a></p>
+</blockquote>
+<h5 id="5-8-engine-h-是-RuntimeDelegate-的具体实现类。"><a href="#5-8-engine-h-是-RuntimeDelegate-的具体实现类。" class="headerlink" title="5.8 engine.h 是 RuntimeDelegate 的具体实现类。"></a>5.8 engine.h 是 RuntimeDelegate 的具体实现类。</h5><pre><code class="c++">class Engine final : public RuntimeDelegate {
+...
+  // |RuntimeDelegate|
+  void HandlePlatformMessage(fml::RefPtr&lt;PlatformMessage&gt; message) override;
+...  
+}  </code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/78a8ca0f62b04fa49030ecdd2d91726c0639401f/shell/common/engine.h">engine.h 源码</a></p>
+</blockquote>
+<h5 id="5-9-engine-cc-中调用了-delegate-的-OnEngineHandlePlatformMessage-方法。"><a href="#5-9-engine-cc-中调用了-delegate-的-OnEngineHandlePlatformMessage-方法。" class="headerlink" title="5.9 engine.cc 中调用了 delegate_ 的 OnEngineHandlePlatformMessage 方法。"></a>5.9 engine.cc 中调用了 delegate_ 的 OnEngineHandlePlatformMessage 方法。</h5><pre><code class="c++">void Engine::HandlePlatformMessage(fml::RefPtr&lt;PlatformMessage&gt; message) {
+  if (message-&gt;channel() == kAssetChannel) {
+    HandleAssetPlatformMessage(std::move(message));
+  } else {
+    delegate_.OnEngineHandlePlatformMessage(std::move(message));
+  }
+}</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/78a8ca0f62b04fa49030ecdd2d91726c0639401f/shell/common/engine.cc">engine.cc 源码</a></p>
+</blockquote>
+<h5 id="5-10-shell-h-是-Engine-的代理。"><a href="#5-10-shell-h-是-Engine-的代理。" class="headerlink" title="5.10 shell.h 是 Engine 的代理。"></a>5.10 shell.h 是 Engine 的代理。</h5><pre><code class="c++">  // |Engine::Delegate|
+  void OnEngineHandlePlatformMessage(
+      fml::RefPtr&lt;PlatformMessage&gt; message) override;</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/ed8e35c4cfe12f836133944c968e00ca52593d43/shell/common/shell.h">shell.h 源码</a></p>
+</blockquote>
+<h5 id="5-11-调用流程又进入了-shell-cc-的-HandleEngineSkiaMessage-方法，把消费放到-TaskRunner-中。"><a href="#5-11-调用流程又进入了-shell-cc-的-HandleEngineSkiaMessage-方法，把消费放到-TaskRunner-中。" class="headerlink" title="5.11 调用流程又进入了 shell.cc 的 HandleEngineSkiaMessage 方法，把消费放到 TaskRunner 中。"></a>5.11 调用流程又进入了 shell.cc 的 HandleEngineSkiaMessage 方法，把消费放到 TaskRunner 中。</h5><pre><code class="c++">// |Engine::Delegate|
+void Shell::OnEngineHandlePlatformMessage(
+    fml::RefPtr&lt;PlatformMessage&gt; message) {
+  FML_DCHECK(is_setup_);
+  FML_DCHECK(task_runners_.GetUITaskRunner()-&gt;RunsTasksOnCurrentThread());
+
+  if (message-&gt;channel() == kSkiaChannel) {
+    HandleEngineSkiaMessage(std::move(message));
+    return;
+  }
+
+  task_runners_.GetPlatformTaskRunner()-&gt;PostTask(
+      [view = platform_view_-&gt;GetWeakPtr(), message = std::move(message)]() {
+        if (view) {
+          view-&gt;HandlePlatformMessage(std::move(message));
+        }
+      });
+}</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/ed8e35c4cfe12f836133944c968e00ca52593d43/shell/common/shell.cc">shell.cc 源码</a></p>
+</blockquote>
+<h5 id="5-12-当-task-执行是会调用-platform-view-android-h-的-HandlePlatformMessage-方法。"><a href="#5-12-当-task-执行是会调用-platform-view-android-h-的-HandlePlatformMessage-方法。" class="headerlink" title="5.12 当 task 执行是会调用 platform_view_android.h 的 HandlePlatformMessage 方法。"></a>5.12 当 task 执行是会调用 platform_view_android.h 的 HandlePlatformMessage 方法。</h5><pre><code class="c++">class PlatformViewAndroid final : public PlatformView {
+...
+  // |PlatformView|
+  void HandlePlatformMessage(
+      fml::RefPtr&lt;flutter::PlatformMessage&gt; message) override;
+...
+}</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/56052c70afcbdff2d39d2af279fcc52666122dbf/shell/platform/android/platform_view_android.h">platform_view_android.h 源码</a> </p>
+</blockquote>
+<h5 id="5-13-在-platform-view-android-cc-的-HandlePlatformMessage-中，开始通过-jni-调用-java-端的方法，java-channel-即要找的-channel。"><a href="#5-13-在-platform-view-android-cc-的-HandlePlatformMessage-中，开始通过-jni-调用-java-端的方法，java-channel-即要找的-channel。" class="headerlink" title="5.13 在 platform_view_android.cc 的 HandlePlatformMessage 中，开始通过 jni 调用 java 端的方法，java_channel 即要找的 channel。"></a>5.13 在 platform_view_android.cc 的 HandlePlatformMessage 中，开始通过 jni 调用 java 端的方法，java_channel 即要找的 channel。</h5><pre><code class="c++">// |PlatformView|
+void PlatformViewAndroid::HandlePlatformMessage(
+    fml::RefPtr&lt;flutter::PlatformMessage&gt; message) {
+  JNIEnv* env = fml::jni::AttachCurrentThread();
+  fml::jni::ScopedJavaLocalRef&lt;jobject&gt; view = java_object_.get(env);
+  if (view.is_null())
+    return;
+
+  int response_id = 0;
+  if (auto response = message-&gt;response()) {
+    response_id = next_response_id_++;
+    pending_responses_[response_id] = response;
+  }
+  auto java_channel = fml::jni::StringToJavaString(env, message-&gt;channel());
+  if (message-&gt;hasData()) {
+    fml::jni::ScopedJavaLocalRef&lt;jbyteArray&gt; message_array(
+        env, env-&gt;NewByteArray(message-&gt;data().size()));
+    env-&gt;SetByteArrayRegion(
+        message_array.obj(), 0, message-&gt;data().size(),
+        reinterpret_cast&lt;const jbyte*&gt;(message-&gt;data().data()));
+    message = nullptr;
+
+    // This call can re-enter in InvokePlatformMessageXxxResponseCallback.
+    FlutterViewHandlePlatformMessage(env, view.obj(), java_channel.obj(),
+                                     message_array.obj(), response_id);
+  } else {
+    message = nullptr;
+
+    // This call can re-enter in InvokePlatformMessageXxxResponseCallback.
+    FlutterViewHandlePlatformMessage(env, view.obj(), java_channel.obj(),
+                                     nullptr, response_id);
+  }
+}</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/56052c70afcbdff2d39d2af279fcc52666122dbf/shell/platform/android/platform_view_android.cc">platform_view_android.cc 源码</a></p>
+</blockquote>
+<h5 id="5-14-在-platform-view-android-jni-cc-中可以看到-g-handle-platform-message-method-就是-FindClass-“io-flutter-embedding-engine-FlutterJNI”-类的-handlePlatformMessage-方法。至此-engine-代码执行结束。"><a href="#5-14-在-platform-view-android-jni-cc-中可以看到-g-handle-platform-message-method-就是-FindClass-“io-flutter-embedding-engine-FlutterJNI”-类的-handlePlatformMessage-方法。至此-engine-代码执行结束。" class="headerlink" title="5.14 在 platform_view_android_jni.cc 中可以看到 g_handle_platform_message_method 就是 FindClass(“io/flutter/embedding/engine/FlutterJNI”) 类的 handlePlatformMessage 方法。至此 engine 代码执行结束。"></a>5.14 在 platform_view_android_jni.cc 中可以看到 g_handle_platform_message_method 就是 FindClass(“io/flutter/embedding/engine/FlutterJNI”) 类的 handlePlatformMessage 方法。至此 engine 代码执行结束。</h5><pre><code class="c++">static jmethodID g_handle_platform_message_method = nullptr;
+void FlutterViewHandlePlatformMessage(JNIEnv* env,
+                                      jobject obj,
+                                      jstring channel,
+                                      jobject message,
+                                      jint responseId) {
+  env-&gt;CallVoidMethod(obj, g_handle_platform_message_method, channel, message,
+                      responseId);
+  FML_CHECK(CheckException(env));
+}</code></pre>
+<pre><code class="c++">  g_handle_platform_message_method =
+      env-&gt;GetMethodID(g_flutter_jni_class-&gt;obj(), &quot;handlePlatformMessage&quot;,
+                       &quot;(Ljava/lang/String;[BI)V&quot;);</code></pre>
+<pre><code class="c++">  g_flutter_jni_class = new fml::jni::ScopedJavaGlobalRef&lt;jclass&gt;(
+      env, env-&gt;FindClass(&quot;io/flutter/embedding/engine/FlutterJNI&quot;));
+  if (g_flutter_jni_class-&gt;is_null()) {
+    FML_LOG(ERROR) &lt;&lt; &quot;Failed to find FlutterJNI Class.&quot;;
+    return false;
+  }</code></pre>
+<blockquote>
+<p><a href="https://github.com/flutter/engine/blob/ed8e35c4cfe12f836133944c968e00ca52593d43/shell/platform/android/platform_view_android_jni.cc">platform_view_android_jni.cc 源码</a></p>
+</blockquote>
+<h5 id="5-15-在-FlutterJNI-中调用了-this-platformMessageHandler-handleMessageFromDart-方法。也就是-DartMessenger-的-handleMessageFromDart-方法。"><a href="#5-15-在-FlutterJNI-中调用了-this-platformMessageHandler-handleMessageFromDart-方法。也就是-DartMessenger-的-handleMessageFromDart-方法。" class="headerlink" title="5.15 在 FlutterJNI 中调用了 this.platformMessageHandler.handleMessageFromDart 方法。也就是 DartMessenger 的 handleMessageFromDart 方法。"></a>5.15 在 FlutterJNI 中调用了 this.platformMessageHandler.handleMessageFromDart 方法。也就是 DartMessenger 的 handleMessageFromDart 方法。</h5><pre><code class="java">    private void handlePlatformMessage(@NonNull String channel, byte[] message, int replyId) {
+        if (this.platformMessageHandler != null) {
+            this.platformMessageHandler.handleMessageFromDart(channel, message, replyId);
+        }
+    }</code></pre>
+<h5 id="5-16-DartMessenger-中-messageHandlers-通过-channel-名找到对应的-handler-进行处理，这个-handler-就是我们在-java-代码里通过-channel-设置的，整个调用流程完成。"><a href="#5-16-DartMessenger-中-messageHandlers-通过-channel-名找到对应的-handler-进行处理，这个-handler-就是我们在-java-代码里通过-channel-设置的，整个调用流程完成。" class="headerlink" title="5.16 DartMessenger 中 messageHandlers 通过 channel 名找到对应的 handler 进行处理，这个 handler 就是我们在 java 代码里通过 channel 设置的，整个调用流程完成。"></a>5.16 DartMessenger 中 messageHandlers 通过 channel 名找到对应的 handler 进行处理，这个 handler 就是我们在 java 代码里通过 channel 设置的，整个调用流程完成。</h5><pre><code class="java">    public void handleMessageFromDart(@NonNull String channel, @Nullable byte[] message, int replyId) {
+        Log.v(&quot;DartMessenger&quot;, &quot;Received message from Dart over channel &#39;&quot; + channel + &quot;&#39;&quot;);
+        BinaryMessageHandler handler = (BinaryMessageHandler)this.messageHandlers.get(channel);
+        if (handler != null) {
+            try {
+                Log.v(&quot;DartMessenger&quot;, &quot;Deferring to registered handler to process message.&quot;);
+                ByteBuffer buffer = message == null ? null : ByteBuffer.wrap(message);
+                handler.onMessage(buffer, new DartMessenger.Reply(this.flutterJNI, replyId));
+            } catch (Exception var6) {
+                Log.e(&quot;DartMessenger&quot;, &quot;Uncaught exception in binary message listener&quot;, var6);
+                this.flutterJNI.invokePlatformMessageEmptyResponseCallback(replyId);
+            }
+        } else {
+            Log.v(&quot;DartMessenger&quot;, &quot;No registered handler for message. Responding to Dart with empty reply message.&quot;);
+            this.flutterJNI.invokePlatformMessageEmptyResponseCallback(replyId);
+        }
+
+    }
+</code></pre>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://flutter.dev/docs/development/platform-integration/platform-channels">Writing custom platform-specific code</a></br><br><a href="https://github.com/flutter/flutter/tree/master/examples/platform_channel">platform channel 官方示例</a></br><br><a href="https://www.yuque.com/xytech/flutter/fu7h25">深入理解Flutter Platform Channel</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Flutter/">Flutter</a>
+                    
+                  </span>
+                
+              </p>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="/img/m_wx.jpeg" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Flutter Platform Channel 使用与源码分析&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
