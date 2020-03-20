@@ -125,7 +125,7 @@
                   
                   <span class="post-meta">
                     <i class="far fa-chart-bar"></i>
-                    2k 字
+                    2.2k 字
                   </span>
                 
 
@@ -133,7 +133,7 @@
                   
                   <span class="post-meta">
                       <i class="far fa-clock"></i>
-                      7 分钟
+                      8 分钟
                   </span>
                 
 
@@ -177,6 +177,7 @@ Security exception: Permission Denial: starting Intent { flg=0x10000000 cmp= pac
 <p>访问构造的恶意 html 文件，导致执行 adb 系统命令。针对 4.2 以下版本移除JavascriptInterface。在 Android 3.0 以下也需要删除 searchBoxJavaBridge  JavaScript 接口。searchBoxJavaBridge_ 跟 Google 搜索框相关。</p>
 <p>推荐<a href="https://blog.csdn.net/nextdoor6/article/details/52274909">文章</a></p>
 <p>另外，Webview 接口调用系统功能时，我们还可以仅限于该应用的功能范围之内调用。这样的加入<strong>白名单机制</strong>也可以有效的避免使用第三方程序恶意使用发送短信、拨打电话、删除文件等。</p>
+<p>accessibility和 accessibilityTraversal接口会引起远程代码执行，删除accessibility和 accessibilityTraversal接口。</p>
 <h4 id="6、APP-更新资源安全"><a href="#6、APP-更新资源安全" class="headerlink" title="6、APP 更新资源安全"></a>6、APP 更新资源安全</h4><p>当我们App升级<strong>更新apk，热更新</strong>部分资源时，对于下载的文件，必须进行校验，包括而不仅限于是否是服务器下载的文件、安装时校验该文件完整性。一般使用<strong>APK公钥签名对比、CRC校验完整性</strong>等，md5不推荐。我们在利用开源的热更新框架时候，必须要考虑到这样，不然就可能会导致致命性的APP伤害，这样的损失将会巨大。</p>
 <h4 id="7、访问https通信不检查证书有效性安全"><a href="#7、访问https通信不检查证书有效性安全" class="headerlink" title="7、访问https通信不检查证书有效性安全"></a>7、访问https通信不检查证书有效性安全</h4><p>在发起HTTPS请求时，如果开发者这样设置了较验证逻辑，<code>setHostnameVerifier(SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER)</code> 即忽略了服务端的证书验证，接受任何证书，假如这个时候有中间代理人出现，就是我们常说的中间人攻击的操作，在建立起链接后传输的信息，就会被中间人查看修改，可想而知，非常危险。中间人可以通过设置DNS服务器使客户端与指定的服务器进行通信。另外，也可以使用用的 Fiddler 工具模拟这样的中间人。</p>
 <p>这样的问题，可以实现证书锁定的方法来解决：</p>
@@ -245,8 +246,11 @@ Security exception: Permission Denial: starting Intent { flg=0x10000000 cmp= pac
 <pre><code class="java">conn.setSSLSocketFactory(getSSLContext(context).getSocketFactory());</code></pre>
 <p>再正常发起网络请求，httpPostData(context, url, content);</p>
 <h4 id="8、信息传递安全"><a href="#8、信息传递安全" class="headerlink" title="8、信息传递安全"></a>8、信息传递安全</h4><p>我们在进行网络信息传递过程中要对数据进行加密，而不是让他们裸奔。不加密的数据，就像脱光了站在大庭广众之下，暴露无遗。这样的解决方案，由开发者视情况而定。比如使用HTTPS，在HTTPS TLS1.2之后已支持ECC加密方式，或制定私有协议（如RSA+AES方案）。保证信息在网络中传输确保不被泄露用户隐私信息。</p>
-<h4 id="9、设备存储信息安全"><a href="#9、设备存储信息安全" class="headerlink" title="9、设备存储信息安全"></a>9、设备存储信息安全</h4><p>在存储信息时，比如sqlite、 xml 、txt 、dat，当然不仅限这几种。都要实施有效的加密手段，对关键的数据存储更应该注意。当然，比如用户密码、加密KEY都是不允许存在本地的。重要信息如果存的是hash值，这也要引起足够的注意，简单Hash可以利用彩虹库有很大概率能碰撞出来。为了极大降低本碰撞出的几率，使用时用一些组合的方式得到hash值，比如password+IMEI。</p>
+<h4 id="9、设备存储信息安全"><a href="#9、设备存储信息安全" class="headerlink" title="9、设备存储信息安全"></a>9、设备存储信息安全</h4><p>在存储信息时，比如 Sqlite、 xml 、txt 、dat，当然不仅限这几种。都要实施有效的加密手段，对关键的数据存储更应该注意。当然，比如用户密码、加密KEY都是不允许存在本地的。重要信息如果存的是hash值，这也要引起足够的注意，简单Hash可以利用彩虹库有很大概率能碰撞出来。为了极大降低本碰撞出的几率，使用时用一些组合的方式得到hash值，比如password+IMEI。</p>
 <h4 id="10、SharedPreference安全"><a href="#10、SharedPreference安全" class="headerlink" title="10、SharedPreference安全"></a>10、SharedPreference安全</h4><p>当使用SharedPreference来保存数据时，对于敏感信息的key尽量使用缩写或者其他不易知其意的命名，比如：KEY_USER_NAME 应该改为KEY_U_N，或 直接一串md5值做key</p>
+<h4 id="11、键盘安全"><a href="#11、键盘安全" class="headerlink" title="11、键盘安全"></a>11、键盘安全</h4><p>若当前你负责的App模块是支付类或用户密码的，更加应该引起足够重视，特别是输入键盘。我们可能很多时候默认使用的是系统键盘或第三方键盘，就会出现记住密码等，甚至有些会被同步到输入法的云端。</p>
+<p>以上的解决方法就是客户端自定义的软键盘并随机变化布局，同时在每次点击输入框时都进行随机初始化。</p>
+<h4 id="12、页面劫持安全"><a href="#12、页面劫持安全" class="headerlink" title="12、页面劫持安全"></a>12、页面劫持安全</h4><p>客户端进入登录或注册页面时，被别人弹出一个页面，实现的原理就是给劫持Activity加入一个标志位<code>FLAG_ACTIVITY_NEW_TASK</code>，就能使它置于栈顶并呈现给用户。开发者要在关键页面的<code>onPause()</code>中，及时检测顶部 <code>Activity</code> 应用是不是自身或者是系统应用，如果检测到不是 APP 本身，就弹出告警或者退出。</p>
 <h2 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h2><p>道路千万条，安全第一条；</p>
 <p>搬砖不规范，同事两行泪。</p>
 
