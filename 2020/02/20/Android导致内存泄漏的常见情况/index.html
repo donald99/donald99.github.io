@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="/img/favicon.png">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="description" content="大道至简">
+  <meta name="author" content="刘圣文">
+  <meta name="keywords" content="Android;Flutter">
+  <title>Android导致内存泄漏的常见情况 - 大道至简</title>
+
+  <link  rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/5.12.1/css/all.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/css/bootstrap.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/mdbootstrap/4.13.0/css/mdb.min.css" />
+<link  rel="stylesheet" href="https://cdn.staticfile.org/github-markdown-css/3.0.1/github-markdown.min.css" />
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1067060_qzomjdt8bmp.css">
+
+
+
+  <link  rel="stylesheet" href="/lib/prettify/tomorrow-night-eighties.min.css" />
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link defer rel="stylesheet" href="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+<!-- 自定义样式保持在最底部 -->
+
+
+<meta name="generator" content="Hexo 4.2.0"></head>
+
+
+<body>
+  <header style="height: 50vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand"
+       href="/">&nbsp;<strong>大道至简</strong>&nbsp;</a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/">首页</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/archives/">归档</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/about/">关于</a>
+          </li>
+        
+          
+          
+          
+          
+          <li class="nav-item">
+            <a class="nav-link" href="/links/">友链</a>
+          </li>
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" data-toggle="modal" data-target="#modalSearch">&nbsp;&nbsp;<i
+                class="iconfont icon-search"></i>&nbsp;&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="view intro-2" id="background" parallax=true
+         style="background: url('https://p0.ssl.qhimg.com/t013b44f6f6157d8dc5.jpg') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask rgba-black-light flex-center">
+          <div class="container text-center white-text fadeInUp">
+            <span class="h2" id="subtitle">
+              
+            </span>
+
+            
+              
+                <p class="mt-3 post-meta">
+                  <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                  星期四, 二月 20日 2020, 10:59 晚上
+                </p>
+              
+
+              <p class="mt-1">
+                
+                  
+                  <span class="post-meta">
+                    <i class="far fa-chart-bar"></i>
+                    1.2k 字
+                  </span>
+                
+
+                
+                  
+                  <span class="post-meta">
+                      <i class="far fa-clock"></i>
+                      5 分钟
+                  </span>
+                
+
+                
+              </p>
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-md">
+      <div class="container nopadding-md" id="board-ctn">
+        <div class="py-5 z-depth-3" id="board">
+          <div class="post-content mx-auto" id="post">
+            
+            <div class="markdown-body">
+              <h2 id="Android导致内存泄漏的常见情况"><a href="#Android导致内存泄漏的常见情况" class="headerlink" title="Android导致内存泄漏的常见情况"></a>Android导致内存泄漏的常见情况</h2><h4 id="1、问题描述："><a href="#1、问题描述：" class="headerlink" title="1、问题描述："></a>1、问题描述：</h4><p>在Activity中注册一个Local Broadcast Receiver，当Activity关闭的时候没有反注册Local Broadcast Receiver，就会一直持有此Activity引用。</p>
+<h4 id="解决方案："><a href="#解决方案：" class="headerlink" title="解决方案："></a>解决方案：</h4><p>在Activity的onStop方法中记得调用反注册receiver。对于注册与反注册receiver的正确使用方法应该是在onStart() or onResume()方法中注册，在onStop()方法中反注册。</p>
+<h4 id="2、问题描述："><a href="#2、问题描述：" class="headerlink" title="2、问题描述："></a>2、问题描述：</h4><p>静态Activity或View引用: 比如声明了一个静态的Textview，此Textview直接或间接的持有Activity或View的静态引用，当Activity或View被销毁时，是不会被GC回收掉的。</p>
+<h4 id="解决方案：-1"><a href="#解决方案：-1" class="headerlink" title="解决方案："></a>解决方案：</h4><p>在Activity、View、Context中一定不用静态变量。</p>
+<h4 id="3、问题描述："><a href="#3、问题描述：" class="headerlink" title="3、问题描述："></a>3、问题描述：</h4><p>单例类引用，比如 给一个耗时操作的单例类传递了当前上下文Context</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><p>A、用applicationContext()代替Activity上下文。</p>
+<p>B、如果非得用Activity上下文，一定记住在Activity被销毁的时候，确定传入单例类的Context被置为null。</p>
+<h4 id="4、问题描述："><a href="#4、问题描述：" class="headerlink" title="4、问题描述："></a>4、问题描述：</h4><p>内部类引用：在声明的内部类里面，为了跳转到另外一个Activity而传入当前的Activity。在class字节码层面的putfield 这一行，这里表示有一个对 NonStaticInnerDemo的引用被存在了 this$0 中，也就是说它持有了外部类的对象。</p>
+<h4 id="解决方案：-2"><a href="#解决方案：-2" class="headerlink" title="解决方案："></a>解决方案：</h4><p>A、永远不要创建内部类的静态变量。</p>
+<p>B、内部类设置为静态的。当匿名类的实例是“静态的”时，它们就不会隐式持有对其外部类的引用。</p>
+<p>C、任何的view或Activity都使用弱引用。仅有弱引用指向他们，这样GC是可以对他们进行回收的。</p>
+<p>java源码</p>
+<pre><code>public class NonStaticInnerDemo {
+  private static String TAG = &quot;Outter&quot;;
+  private Runnable runnable = new Runnable(){
+    public void run(){
+      System.out.println(&quot;inner run: &quot; + TAG);
+    }
+  };
+}</code></pre><p><strong>class字节码</strong></p>
+<pre><code class="java">Compiled from &quot;NonStaticInnerDemo.java&quot;
+class NonStaticInnerDemo$1 implements java.lang.Runnable {
+  final NonStaticInnerDemo this$0;
+  NonStaticInnerDemo$1(NonStaticInnerDemo);
+    Code:
+       0: aload_0
+       1: aload_1
+       2: putfield      #1                  // Field this$0:LNonStaticInnerDemo;
+       5: aload_0
+       6: invokespecial #2                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V
+       9: return
+
+  public void run();
+    Code:
+       0: getstatic     #3                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: new           #4                  // class java/lang/StringBuilder
+       6: dup
+       7: invokespecial #5                  // Method java/lang/StringBuilder.&quot;&lt;init&gt;&quot;:()V
+      10: ldc           #6                  // String inner run:
+      12: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      15: invokestatic  #8                  // Method NonStaticInnerDemo.access$000:()Ljava/lang/String;
+      18: invokevirtual #7                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      21: invokevirtual #9                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      24: invokevirtual #10                 // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      27: return
+}</code></pre>
+<pre><code class="java">private static Runnable runnable = new Runnable(){}
+
+Compiled from &quot;NonStaticInnerDemo.java&quot;
+final class NonStaticInnerDemo$1 implements java.lang.Runnable {
+  NonStaticInnerDemo$1();
+    Code:
+       0: aload_0
+       1: invokespecial #1                  // Method java/lang/Object.&quot;&lt;init&gt;&quot;:()V
+       4: return
+
+  public void run();
+    Code:
+       0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+       3: new           #3                  // class java/lang/StringBuilder
+       6: dup
+       7: invokespecial #4                  // Method java/lang/StringBuilder.&quot;&lt;init&gt;&quot;:()V
+      10: ldc           #5                  // String inner run:
+      12: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      15: invokestatic  #7                  // Method NonStaticInnerDemo.access$000:()Ljava/lang/String;
+      18: invokevirtual #6                  // Method java/lang/StringBuilder.append:(Ljava/lang/String;)Ljava/lang/StringBuilder;
+      21: invokevirtual #8                  // Method java/lang/StringBuilder.toString:()Ljava/lang/String;
+      24: invokevirtual #9                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+      27: return
+}</code></pre>
+<p>对比可以发现这里少了一行 putfield，class字节码第九行。说明对于一个静态匿名内部类来说，它不会持有外部类的引用。</p>
+<h4 id="5、问题描述："><a href="#5、问题描述：" class="headerlink" title="5、问题描述："></a>5、问题描述：</h4><p>匿名类引用，比如在Activity内，声明出一个Handler处理Message，Message没有处理完，Activity却执行了销毁动作，Message持有Handler，Handler持有Activity，导致Activity始终不能被回收。</p>
+<pre><code> private Handler handler = new Handler(){ 
+         @Override 
+         public void handleMessage(Message msg) { 
+                     // do something 
+              }
+         }；</code></pre><h4 id="解决方案：-3"><a href="#解决方案：-3" class="headerlink" title="解决方案："></a>解决方案：</h4><p>A、在Activity 的 onDestroy方法中执行 Handler的removeCallbacksAndMessages(null)方法， 将所有Message移除。</p>
+<p>B、内部类设置为静态的，不隐性持有外部类，如果静态内部类需要用到外面的类，那么就使用弱引用。</p>
+<p>C、在Handler 内部使用Activity的弱引用。Handler在主线程上处理消息时，它与Looper的消息队列相关联的。</p>
+<h4 id="6、问题描述："><a href="#6、问题描述：" class="headerlink" title="6、问题描述："></a>6、问题描述：</h4><p>异步任务引用，用AsyncTask的OnPostExecute()方法，把字符串更新到Textview上。</p>
+<h4 id="解决方案：-4"><a href="#解决方案：-4" class="headerlink" title="解决方案："></a>解决方案：</h4><p>A、避免在在Activity被销毁的时候AsyncTask还在一直处于执行状态，我们此时应该取消掉AsyncTask。</p>
+<p>B、对Textview使用弱引用。</p>
+<h4 id="7、问题描述："><a href="#7、问题描述：" class="headerlink" title="7、问题描述："></a>7、问题描述：</h4><p>线程Thread引用</p>
+<h4 id="解决方案：-5"><a href="#解决方案：-5" class="headerlink" title="解决方案："></a>解决方案：</h4><p>非静态匿名类持有对其外部类的隐式引用。在Activity的onDestroy()方法中关闭线程。</p>
+<h4 id="8、问题描述："><a href="#8、问题描述：" class="headerlink" title="8、问题描述："></a>8、问题描述：</h4><p>定时器任务 TimerTask 引用</p>
+<h4 id="解决方案：-6"><a href="#解决方案：-6" class="headerlink" title="解决方案："></a>解决方案：</h4><p>对于TimerTask，也可以遵循与线程相同的原则。在Activity的onDestroy()方法中取消定时器，以避免内存泄漏。</p>
+<h4 id="9、问题描述："><a href="#9、问题描述：" class="headerlink" title="9、问题描述："></a>9、问题描述：</h4><p>数据链接没有关闭，比如数据库contentprovider，io，sokect、cursor</p>
+<p>​          数据库contentprovider，io，sokect、cursor</p>
+<h4 id="解决方案：-7"><a href="#解决方案：-7" class="headerlink" title="解决方案："></a>解决方案：</h4><p>使用结束后，及时释放关闭</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>虽然这些都是常见的，但不得不引起每个人的注意。最近总想写点东西，总结过去不失为一种反思。</p>
+<p>吾每日三省吾身 –《论语·学而》</p>
+
+            </div>
+            <hr>
+            <div>
+              <p>
+                
+                
+                  <span>
+                <i class="iconfont icon-tag"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Android/">Android</a>
+                    
+                  </span>
+                
+              </p>
+              
+                <p class="note note-warning">本博客所有文章除特别声明外，均采用 <a href="https://zh.wikipedia.org/wiki/Wikipedia:CC_BY-SA_3.0%E5%8D%8F%E8%AE%AE%E6%96%87%E6%9C%AC" rel="nofollow noopener">CC BY-SA 3.0协议</a> 。转载请注明出处！</p>
+              
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc-start"></div>
+<div id="toc">
+  <p class="h5"><i class="far fa-list-alt"></i>&nbsp;目录</p>
+  <div id="tocbot"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+  <div class="col-lg-7 mx-auto nopadding-md">
+    <div class="container custom post-content mx-auto">
+      <img src="/img/m_wx.jpeg" srcset="/img/loading.gif" class="rounded mx-auto d-block mt-5" style="width:150px; height:150px;">
+    </div>
+  </div>
+
+
+    
+  </main>
+
+  
+    <a class="z-depth-1" id="scroll-top-button" href="#" role="button">
+      <i class="fa fa-chevron-up scroll-top-arrow" aria-hidden="true"></i>
+    </a>
+  
+
+  
+    <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+  
+
+  
+
+  
+
+  <footer class="mt-5">
+  <div class="text-center py-3">
+    <div>
+      <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><b>Hexo</b></a>
+      <i class="iconfont icon-love"></i>
+      <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"> <b>Fluid</b></a>
+    </div>
+    
+
+    
+
+    
+  </div>
+</footer>
+
+<!-- SCRIPTS -->
+<script  src="https://cdn.staticfile.org/jquery/3.4.1/jquery.min.js" ></script>
+<script  src="https://cdn.staticfile.org/popper.js/1.16.1/umd/popper.min.js" ></script>
+<script  src="https://cdn.staticfile.org/twitter-bootstrap/4.4.1/js/bootstrap.min.js" ></script>
+<script  src="https://cdn.staticfile.org/mdbootstrap/4.13.0/js/mdb.min.js" ></script>
+<script  src="/js/main.js" ></script>
+
+
+  <script  src="/js/lazyload.js" ></script>
+
+
+
+  
+  <script  src="https://cdn.staticfile.org/tocbot/4.10.0/tocbot.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      var navHeight = $('#navbar').height();
+      var post = $('#post');
+      var toc = $('#toc');
+      var tocLimMax = post.offset().top + post.height() - navHeight;
+
+      $(window).scroll(function () {
+        var tocLimMin = $('#toc-start').offset().top - navHeight;
+        var scroH = document.body.scrollTop + document.documentElement.scrollTop;
+
+        if (tocLimMin <= scroH && scroH <= tocLimMax) {
+          toc.css({
+            'display': 'block',
+            'position': 'fixed',
+            'top': navHeight,
+          });
+        } else if (scroH <= tocLimMin) {
+          toc.css({
+            'position': '',
+            'top': '',
+          });
+        } else if (scroH > tocLimMax) {
+          toc.css('display', 'none');
+        }
+      });
+      tocbot.init({
+        tocSelector: '#tocbot',
+        contentSelector: '.post-content',
+        headingSelector: 'h1,h2,h3,h4,h5,h6',
+        linkClass: 'tocbot-link',
+        activeLinkClass: 'tocbot-active-link',
+        listClass: 'tocbot-list',
+        isCollapsedClass: 'tocbot-is-collapsed',
+        collapsibleClass: 'tocbot-is-collapsible',
+        scrollSmooth: true,
+      });
+      if ($('.toc-list-item').length > 0) {
+        $('#toc > p').css('visibility', 'visible');
+      }
+      var offset = $('#board-ctn').css('margin-right')
+      $('#toc-ctn').css({
+        'right': offset
+      })
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+<!-- Plugins -->
+
+
+
+  <script  src="https://cdn.staticfile.org/prettify/188.0.0/prettify.min.js" ></script>
+  <script>
+    $(document).ready(function () {
+      $('pre').addClass('prettyprint  linenums');
+      prettyPrint();
+    })
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/typed.js/2.0.11/typed.min.js" ></script>
+  <script>
+    var typed = new Typed('#subtitle', {
+      strings: [
+        '  ',
+        "Android导致内存泄漏的常见情况&nbsp;",
+      ],
+      cursorChar: "_",
+      typeSpeed: 80,
+      loop: false,
+    });
+    typed.stop();
+    $(document).ready(function () {
+      $(".typed-cursor").addClass("h2");
+      typed.start();
+    });
+  </script>
+
+
+
+  <script  src="https://cdn.staticfile.org/anchor-js/4.2.2/anchor.min.js" ></script>
+  <script>
+    anchors.options = {
+      placement: "right",
+      visible: "hover",
+      
+    };
+    var el = "h1,h2,h3,h4,h5,h6".split(",");
+    var res = [];
+    for (item of el) {
+      res.push(".markdown-body > " + item)
+    }
+    anchors.add(res.join(", "))
+  </script>
+
+
+
+  <script  src="/js/local-search.js" ></script>
+  <script>
+    var path = "/local-search.xml";
+    var inputArea = document.querySelector("#local-search-input");
+    inputArea.onclick = function () {
+      getSearchFile(path);
+      this.onclick = null
+    }
+  </script>
+
+
+
+  <script defer src="https://cdn.staticfile.org/fancybox/3.5.7/jquery.fancybox.min.js" ></script>
+  <script>
+    $("#post img:not(.no-zoom img, img[no-zoom])").each(
+      function () {
+        var element = document.createElement("a");
+        $(element).attr("data-fancybox", "images");
+        $(element).attr("href", $(this).attr("src"));
+        $(this).wrap(element);
+      }
+    );
+  </script>
+
+
+
+
+
+  
+  
+    <script type="text/javascript">
+      //定义获取词语下标
+      var a_idx = 0;
+      jQuery(document).ready(function ($) {
+        //点击body时触发事件
+        $("body").click(function (e) {
+          //需要显示的词语
+          var a = new Array("富强", "民主", "文明", "和谐", "自由", "平等", "公正", "法治", "爱国", "敬业", "诚信", "友善");
+          //设置词语给span标签
+          var $i = $("<span/>").text(a[a_idx]);
+          //下标等于原来下标+1  余 词语总数
+          a_idx = (a_idx + 1) % a.length;
+          //获取鼠标指针的位置，分别相对于文档的左和右边缘。
+          //获取x和y的指针坐标
+          var x = e.pageX, y = e.pageY;
+          //在鼠标的指针的位置给$i定义的span标签添加css样式
+          $i.css({
+            "z-index": 999,
+            "top": y - 20,
+            "left": x,
+            "position": "absolute",
+            "font-weight": "bold",
+            "color": rand_color()
+          });
+          // 随机颜色
+          function rand_color() {
+            return "rgb(" + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + "," + ~~(255 * Math.random()) + ")"
+          }
+          //在body添加这个标签
+          $("body").append($i);
+          //animate() 方法执行 CSS 属性集的自定义动画。
+          //该方法通过CSS样式将元素从一个状态改变为另一个状态。CSS属性值是逐渐改变的，这样就可以创建动画效果。
+          //详情请看http://www.w3school.com.cn/jquery/effect_animate.asp
+          $i.animate({
+            //将原来的位置向上移动180
+            "top": y - 180,
+            "opacity": 0
+            //1500动画的速度
+          }, 1500, function () {
+            //时间到了自动删除
+            $i.remove();
+          });
+        });
+      })
+      ;
+    </script>
+  
+
+
+
+
+
+
+
+
+</body>
+</html>
